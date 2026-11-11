@@ -1,4 +1,4 @@
-# FreshCheck 🛡️
+# FreshCheck <img src="public/favicon.svg" alt="FreshCheck Logo" width="36" height="36" align="center" />
 > **Spell-check for facts that expire. Paste any AI answer and see which claims are stale.**
 
 Built for **Geek Room Global AI Hackathon 2026** · **Problem Statement 06 (Tavily × Bifrost)**
