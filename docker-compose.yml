@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # Bifrost AI Gateway (Maxim AI)
+  bifrost:
+    image: maximhq/bifrost:latest
+    container_name: freshcheck-bifrost
+    ports:
+      - "8080:8080"
+    environment:
+      - BIFROST_PORT=8080
+    restart: unless-stopped
+
+  # FreshCheck Next.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: freshcheck-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - BIFROST_BASE_URL=http://bifrost:8080/v1
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
+      - MODEL_PRIMARY=${MODEL_PRIMARY:-gemini-1.5-flash}
+      - MODEL_FALLBACK=${MODEL_FALLBACK:-llama-3.1-8b-instant}
+    depends_on:
+      - bifrost
+    restart: unless-stopped
