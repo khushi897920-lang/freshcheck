@@ -1,4 +1,6 @@
-import { tavily, TavilyClient } from "@tavily/core";
+import { tavily } from "@tavily/core";
+
+export type TavilyClient = ReturnType<typeof tavily>;
 
 export interface SearchEvidenceItem {
   url: string;

@@ -32,10 +32,10 @@ export async function POST(req: NextRequest) {
     // Create the ReadableStream for Server-Sent Events (SSE)
     const stream = new ReadableStream({
       async start(controller) {
-        function sendEvent(event: string, data: any) {
+        const sendEvent = (event: string, data: any) => {
           const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
           controller.enqueue(encoder.encode(payload));
-        }
+        };
 
         try {
           // 1. Create initial check in database
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
           let tavilyCreditsUsed = 0;
 
           // Helper to process a single claim
-          async function processClaimItem(item: (typeof claimsToVerify)[0]) {
+          const processClaimItem = async (item: (typeof claimsToVerify)[0]) => {
             const judged = await verifyAndJudgeClaim(item.claim);
 
             if (!item.claim.skipped && judged.evidence.length > 0) {

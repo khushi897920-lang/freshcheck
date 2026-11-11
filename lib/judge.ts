@@ -140,7 +140,17 @@ export async function verifyAndJudgeClaim(
       JudgeResponseSchema
     );
 
-    judgeData = completion.data;
+    const data = completion.data as JudgeResponse;
+    judgeData = {
+      verdict: data.verdict,
+      current_value: data.current_value || null,
+      explanation: data.explanation,
+      supporting_urls: data.supporting_urls || [],
+      newest_evidence_date: data.newest_evidence_date || null,
+      official_source: !!data.official_source,
+      sources_agree: !!data.sources_agree,
+      conflict: !!data.conflict,
+    };
     modelUsed = completion.modelUsed;
   } catch (err) {
     console.warn(`[Judge] LLM judgment failed for claim "${claim.text}":`, err);

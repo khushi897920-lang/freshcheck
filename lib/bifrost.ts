@@ -40,7 +40,7 @@ export async function executeBifrostCompletion<T = string>(
   const client = getBifrostClient(options.timeoutMs ?? 2500);
 
   // Helper to attempt completion with a given model
-  async function callModel(model: string): Promise<string> {
+  const callModel = async (model: string): Promise<string> => {
     const response = await client.chat.completions.create({
       model,
       messages: options.messages,
