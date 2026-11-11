@@ -17,6 +17,11 @@ import {
   Check,
   PanelLeft,
   PanelRight,
+  MessageSquare,
+  Paperclip,
+  BarChart2,
+  FileEdit,
+  SlidersHorizontal,
 } from "lucide-react";
 import { ProgressSteps, PipelineStep } from "./ProgressSteps";
 import { AnnotatedAnswer } from "./AnnotatedAnswer";
@@ -75,10 +80,18 @@ export function CenterWorkspace({
   isLeftSidebarOpen,
   isRightSidebarOpen,
 }: CenterWorkspaceProps) {
-  const [inputTab, setInputTab] = useState<"chat" | "verify">("verify");
+  const [inputTab, setInputTab] = useState<"chat" | "verify">("chat");
   const [showCorrected, setShowCorrected] = useState(false);
   const [correctedResult, setCorrectedResult] = useState<CorrectedAnswerResult | null>(null);
   const [isTyping, setIsTyping] = useState(false);
+  const [petSpeechQuote, setPetSpeechQuote] = useState<string | null>(null);
+
+  const handlePetSpeech = (quote: string) => {
+    setPetSpeechQuote(quote);
+    setTimeout(() => {
+      setPetSpeechQuote(null);
+    }, 4500);
+  };
 
   const handleToggleCorrected = () => {
     if (!correctedResult && claims.length > 0) {
@@ -314,53 +327,78 @@ export function CenterWorkspace({
       </div>
 
       {/* Floating Bottom Prompt Bar Container */}
-      <div className="p-3 sm:p-5 md:p-6 bg-gradient-to-t from-white via-white/95 to-transparent flex-shrink-0 max-w-3xl mx-auto w-full space-y-2.5 sm:space-y-3">
-        {/* Floating Notification with Codex Blob Mascot Pet */}
-        <div className="flex items-end justify-center gap-2 sm:gap-3 px-1 relative">
+      <div className="p-3 sm:p-5 md:p-6 bg-gradient-to-t from-white via-white/95 to-transparent flex-shrink-0 max-w-3xl mx-auto w-full space-y-2">
+        {/* Heads Up Speech Bubble + Blob Mascot (Exact match to reference image) */}
+        <div className="flex items-center gap-2.5 sm:gap-3 relative z-10 self-start sm:ml-2">
+          {/* Mint Teal Feral Blob Mascot */}
           <CodexBlobPet
             isChecking={isChecking}
             isTyping={isTyping}
             overallScore={overallScore}
             staleCount={summaryCounts?.stale ?? 0}
             size="md"
+            onSpeech={handlePetSpeech}
           />
 
-          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-white border border-[#E2E8F0] shadow-xs text-[11px] sm:text-xs text-[#334155] text-center flex-wrap justify-center mb-1">
-            <span className="text-xs">🛡️</span>
-            <span>
-              <strong className="font-semibold text-[#0F172A]">Heads up</strong> Answers may contain stale pricing or deprecated APIs.
+          {/* Speech Bubble with Pointer Tail */}
+          <div className="relative bg-white/95 backdrop-blur-xs rounded-2xl py-2 px-3.5 sm:px-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-[#E2E8F0] flex items-center gap-2 text-xs text-[#475569] leading-snug">
+            {/* Left triangular tail pointing to the blob mascot */}
+            <div className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-3 h-3 bg-white border-l border-b border-[#E2E8F0] rotate-45" />
+
+            <span className="font-bold text-[#0F172A] relative z-10">Heads up</span>
+            <span className="relative z-10 text-[#334155]">
+              {petSpeechQuote || "Your newest emissions data is 84 days old."}
             </span>
-            <span
-              onClick={() => onSelectSample(SAMPLE_ANSWERS[0])}
-              className="font-semibold text-[#059669] hover:underline cursor-pointer inline-flex items-center gap-0.5 ml-1"
+            <button
+              type="button"
+              onClick={() => onSelectSample({
+                id: "emissions-scope",
+                title: "Scope 1 & 2 Emissions Audit",
+                category: "pricing_and_models",
+                text: "Under the SEBI BRSR Core guidelines for FY2026, assurance is voluntary for top 1000 listed entities, and Scope 1 and Scope 2 greenhouse gas reporting standards have been indefinitely delayed.",
+                answerDate: "2023-01-01",
+              })}
+              className="font-bold text-[#059669] hover:text-[#047857] hover:underline cursor-pointer inline-flex items-center gap-0.5 relative z-10 transition-colors whitespace-nowrap"
             >
-              Check facts →
-            </span>
+              Find bills →
+            </button>
+
+            {/* Carousel dots indicator on far right */}
+            <div className="hidden xs:flex items-center gap-1 ml-1.5 relative z-10 opacity-70">
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+              <span className="w-3.5 h-1.5 rounded-full bg-[#059669]" />
+            </div>
           </div>
         </div>
 
-        {/* Glowing Gradient Border Input Box */}
-        <div className="p-[1.5px] rounded-2xl bg-gradient-to-r from-blue-200 via-indigo-100 to-purple-200 shadow-lg shadow-indigo-100/40">
-          <div className="bg-white rounded-2xl p-3 sm:p-4 space-y-2.5">
-            {/* Top row tabs: Chat vs Verify */}
-            <div className="flex items-center gap-1.5 text-xs font-medium text-[#64748B]">
+        {/* Clean Glowing Gradient Border Input Box */}
+        <div className="p-[1.5px] rounded-[22px] bg-gradient-to-r from-[#67E8F9]/40 via-[#A5B4FC]/30 to-[#DDD6FE]/50 shadow-[0_12px_32px_-8px_rgba(203,213,225,0.45)]">
+          <div className="bg-white rounded-[20.5px] p-4 sm:p-5 space-y-3">
+            {/* Top row tabs: Chat vs Task */}
+            <div className="flex items-center gap-1.5 text-xs font-medium">
               <button
                 type="button"
                 onClick={() => setInputTab("chat")}
-                className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
-                  inputTab === "chat" ? "bg-[#F1F5F9] text-[#0F172A] font-semibold" : "hover:text-[#0F172A]"
+                className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer text-xs ${
+                  inputTab === "chat"
+                    ? "bg-[#F8FAFC] border border-[#E2E8F0] text-[#0F172A] font-semibold shadow-2xs"
+                    : "text-[#64748B] hover:text-[#0F172A] hover:bg-slate-50"
                 }`}
               >
-                Chat
+                <MessageSquare className="w-3.5 h-3.5 text-[#0F172A]" />
+                <span>Chat</span>
               </button>
               <button
                 type="button"
                 onClick={() => setInputTab("verify")}
-                className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
-                  inputTab === "verify" ? "bg-[#F1F5F9] text-[#0F172A] font-semibold" : "hover:text-[#0F172A]"
+                className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer text-xs ${
+                  inputTab === "verify"
+                    ? "bg-[#F8FAFC] border border-[#E2E8F0] text-[#0F172A] font-semibold shadow-2xs"
+                    : "text-[#64748B] hover:text-[#0F172A] hover:bg-slate-50"
                 }`}
               >
-                Fact Check
+                <SlidersHorizontal className="w-3.5 h-3.5 text-[#64748B]" />
+                <span>Task</span>
               </button>
             </div>
 
@@ -373,13 +411,13 @@ export function CenterWorkspace({
               onFocus={() => setIsTyping(true)}
               onBlur={() => setIsTyping(false)}
               disabled={isChecking}
-              placeholder="Paste any AI answer to audit for expired facts..."
-              className="w-full text-xs sm:text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none resize-none leading-relaxed bg-transparent font-sans min-h-[60px]"
+              placeholder="Type your query, ask to audit emissions, or attach a bill/invoice..."
+              className="w-full text-xs sm:text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none resize-none leading-relaxed bg-transparent font-sans min-h-[64px] sm:min-h-[72px]"
             />
 
             {/* Error Message if any */}
             {errorMessage && (
-              <div className="text-xs text-rose-700 bg-rose-50 border border-rose-200 p-2.5 rounded-lg flex items-center justify-between">
+              <div className="text-xs text-rose-700 bg-rose-50 border border-rose-200 p-2.5 rounded-xl flex items-center justify-between">
                 <span>{errorMessage}</span>
                 <button
                   type="button"
@@ -391,56 +429,63 @@ export function CenterWorkspace({
               </div>
             )}
 
-            {/* Bottom Toolbar with Sample Chips and Send Button */}
-            <div className="flex items-center justify-between pt-2 border-t border-[#F1F5F9] gap-2">
+            {/* Bottom Toolbar with 4 Exact Pills and Squircle Send Button */}
+            <div className="flex items-center justify-between pt-2.5 border-t border-[#F1F5F9] gap-2">
               <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-0.5 scrollbar-none flex-1">
+                {/* 1. Attach Bill / PDF (Pink) */}
                 <button
                   type="button"
                   onClick={() => onSelectSample(SAMPLE_ANSWERS[0])}
-                  className="text-[11px] sm:text-xs font-medium px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#FDF2F4] text-[#E11D48] border border-[#FECDD3] hover:bg-[#FCE7EC] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px]"
+                  className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#FFF1F2] text-[#E11D48] border border-[#FFE4E6] hover:bg-[#FFE4E6] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
                 >
-                  <FileCode className="w-3.5 h-3.5 text-[#E11D48]" />
-                  <span>API Versions</span>
+                  <Paperclip className="w-3.5 h-3.5 text-[#E11D48]" />
+                  <span>Attach Bill / PDF</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => onSelectSample(SAMPLE_ANSWERS[1])}
-                  className="text-[11px] sm:text-xs font-medium px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0] hover:bg-[#D1FAE5] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px]"
-                >
-                  <Users className="w-3.5 h-3.5 text-[#059669]" />
-                  <span>Leadership</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onSelectSample(SAMPLE_ANSWERS[2])}
-                  className="text-[11px] sm:text-xs font-medium px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE] hover:bg-[#DBEAFE] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px]"
-                >
-                  <Coins className="w-3.5 h-3.5 text-[#2563EB]" />
-                  <span>Pricing</span>
-                </button>
+
+                {/* 2. Scope 1 & 2 Audit (Mint) */}
                 <button
                   type="button"
                   onClick={() => onSelectSample({
-                    id: "regulations",
-                    title: "Regulatory Standards",
+                    id: "emissions-scope",
+                    title: "Scope 1 & 2 Emissions Audit",
                     category: "pricing_and_models",
-                    text: "Under the SEBI BRSR Core guidelines for FY2026, assurance is voluntary for top 1000 listed entities, and the global CSRD reporting standard has been indefinitely delayed.",
+                    text: "Under the SEBI BRSR Core guidelines for FY2026, assurance is voluntary for top 1000 listed entities, and Scope 1 and Scope 2 greenhouse gas reporting standards have been indefinitely delayed.",
                     answerDate: "2023-01-01",
                   })}
-                  className="text-[11px] sm:text-xs font-medium px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A] hover:bg-[#FEF3C7] transition-colors whitespace-nowrap cursor-pointer items-center gap-1.5 min-h-[34px] hidden lg:flex"
+                  className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#F0FDFA] text-[#0D9488] border border-[#CCFBF1] hover:bg-[#CCFBF1] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
                 >
-                  <Scale className="w-3.5 h-3.5 text-[#D97706]" />
-                  <span>Regulations</span>
+                  <BarChart2 className="w-3.5 h-3.5 text-[#0D9488]" />
+                  <span>Scope 1 &amp; 2 Audit</span>
+                </button>
+
+                {/* 3. Write a report (Sky Blue) */}
+                <button
+                  type="button"
+                  onClick={() => onSelectSample(SAMPLE_ANSWERS[1])}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#F0F9FF] text-[#0284C7] border border-[#E0F2FE] hover:bg-[#E0F2FE] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
+                >
+                  <FileEdit className="w-3.5 h-3.5 text-[#0284C7]" />
+                  <span>Write a report</span>
+                </button>
+
+                {/* 4. Simulate Levers (Amber) */}
+                <button
+                  type="button"
+                  onClick={() => onSelectSample(SAMPLE_ANSWERS[2])}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#FFFBEB] text-[#D97706] border border-[#FEF3C7] hover:bg-[#FEF3C7] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-[#D97706]" />
+                  <span>Simulate Levers</span>
                 </button>
               </div>
 
-              {/* Up-arrow Send Button */}
+              {/* Squircle Send Button (rounded-xl with soft cool-slate styling) */}
               <button
                 type="button"
                 onClick={onCheckFreshness}
                 disabled={isChecking || !text.trim()}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#6366F1] hover:bg-[#4F46E5] disabled:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed text-white flex items-center justify-center transition-all flex-shrink-0 cursor-pointer shadow-sm hover:scale-105 active:scale-95"
-                title="Verify Freshness (⌘+Enter)"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#EEF2F6] hover:bg-[#E2E8F0] active:scale-95 disabled:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-[#334155] flex items-center justify-center transition-all flex-shrink-0 cursor-pointer shadow-2xs"
+                title="Send / Verify Freshness (⌘+Enter)"
               >
                 <ArrowUp className="w-4.5 h-4.5" />
               </button>

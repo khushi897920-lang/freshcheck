@@ -10,6 +10,8 @@ interface CodexBlobPetProps {
   staleCount?: number;
   className?: string;
   size?: "sm" | "md" | "lg";
+  onSpeech?: (text: string) => void;
+  showFloatingSpeech?: boolean;
 }
 
 const PET_QUOTES = [
@@ -28,6 +30,8 @@ export function CodexBlobPet({
   staleCount = 0,
   className = "",
   size = "md",
+  onSpeech,
+  showFloatingSpeech = false,
 }: CodexBlobPetProps) {
   const [moodOverride, setMoodOverride] = useState<JellyBlobMood | null>(null);
   const [pokeCount, setPokeCount] = useState(0);
@@ -52,15 +56,19 @@ export function CodexBlobPet({
   useEffect(() => {
     if (overallScore !== null && overallScore >= 75) {
       setCelebrateCount((c) => c + 1);
-      setSpeechText("Fresh facts verified! Score: " + overallScore + " 🎉");
+      const msg = "Fresh facts verified! Score: " + overallScore + " 🎉";
+      setSpeechText(msg);
+      if (onSpeech) onSpeech(msg);
       const timer = setTimeout(() => setSpeechText(null), 4000);
       return () => clearTimeout(timer);
     } else if (overallScore !== null && overallScore < 40) {
-      setSpeechText("Heads up! Stale claims detected ⚠️");
+      const msg = "Heads up! Stale claims detected ⚠️";
+      setSpeechText(msg);
+      if (onSpeech) onSpeech(msg);
       const timer = setTimeout(() => setSpeechText(null), 4000);
       return () => clearTimeout(timer);
     }
-  }, [overallScore]);
+  }, [overallScore, onSpeech]);
 
   // Handle Poke
   const handlePoke = () => {
@@ -68,6 +76,7 @@ export function CodexBlobPet({
     setBlinkCount((b) => b + 1);
     const randomQuote = PET_QUOTES[Math.floor(Math.random() * PET_QUOTES.length)];
     setSpeechText(randomQuote);
+    if (onSpeech) onSpeech(randomQuote);
 
     // Briefly switch to happy or surprised on poke
     setMoodOverride("happy");
@@ -83,7 +92,9 @@ export function CodexBlobPet({
 
   // Handle Overpoke (when user clicks rapidly)
   const handleOverpoke = () => {
-    setSpeechText("Hey hey! Easy on the pokes! 😅");
+    const msg = "Hey hey! Easy on the pokes! 😅";
+    setSpeechText(msg);
+    if (onSpeech) onSpeech(msg);
     setMoodOverride("surprised");
     setTimeout(() => {
       setMoodOverride(null);
@@ -92,15 +103,15 @@ export function CodexBlobPet({
   };
 
   const sizeClasses = {
-    sm: "w-10 h-10",
-    md: "w-13 h-13 sm:w-15 sm:h-15",
-    lg: "w-18 h-18 sm:w-20 sm:h-20",
+    sm: "w-9 h-9",
+    md: "w-12 h-12 sm:w-14 sm:h-14",
+    lg: "w-16 h-16 sm:w-20 sm:h-20",
   }[size];
 
   return (
     <div className={`relative inline-flex items-center select-none ${className}`}>
-      {/* Speech Cloud Bubble when poked or state changes */}
-      {speechText && (
+      {/* Optional Speech Cloud Bubble when poked */}
+      {showFloatingSpeech && speechText && (
         <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-30 pointer-events-none animate-in fade-in zoom-in-95 duration-150">
           <div className="bg-slate-900/90 text-white text-[11px] font-sans font-medium px-2.5 py-1 rounded-xl shadow-lg border border-slate-700 whitespace-nowrap flex items-center gap-1.5 backdrop-blur-xs">
             <span>{speechText}</span>
@@ -111,7 +122,7 @@ export function CodexBlobPet({
 
       {/* Mint Teal Feral Blob SVG Mascot */}
       <div
-        className={`blob-pet-teal relative cursor-pointer transition-transform hover:scale-105 active:scale-95 ${sizeClasses}`}
+        className={`blob-pet-teal relative cursor-pointer transition-transform hover:scale-105 active:scale-95 flex-shrink-0 ${sizeClasses}`}
         onClick={handlePoke}
         title="Poke your FreshCheck Codex Pet!"
       >
