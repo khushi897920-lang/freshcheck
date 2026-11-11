@@ -4,25 +4,35 @@ import { AlertCircle, ArrowLeft } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-[#0B0D12] text-[#E6E8EE] flex flex-col font-sans">
+    <div className="min-h-screen bg-black text-white flex flex-col font-sans selection:bg-[#6366F1]/30">
       <Navbar />
 
-      <main className="max-w-md mx-auto px-4 py-24 flex-1 flex flex-col items-center justify-center text-center space-y-4">
-        <div className="w-12 h-12 rounded-2xl bg-red-950/40 border border-red-800/60 flex items-center justify-center text-[#EF4444]">
-          <AlertCircle className="w-6 h-6" />
+      <main className="max-w-md mx-auto px-4 py-24 flex-1 flex flex-col items-center justify-center text-center space-y-5">
+        <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shadow-lg">
+          <img
+            src="/favicon.svg"
+            alt="FreshCheck Logo"
+            className="w-7 h-7 max-w-[28px] max-h-[28px] object-contain"
+          />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">404 — Page Not Found</h1>
-        <p className="text-xs text-[#8A91A3] max-w-sm leading-relaxed">
-          The verification report or page you requested does not exist or has expired.
-        </p>
+
+        <div className="space-y-2">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+            404 — Page Not Found
+          </h1>
+          <p className="text-sm text-slate-200 max-w-sm leading-relaxed font-normal">
+            The verification audit report or page you requested does not exist or has expired.
+          </p>
+        </div>
+
         <Link
           href="/"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#12151C] hover:bg-[#1F2430] border border-[#1F2430] text-xs font-medium text-[#E6E8EE] transition-colors"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-black hover:bg-slate-200 font-bold text-xs sm:text-sm shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
         >
-          <ArrowLeft className="w-3.5 h-3.5" /> Back to FreshCheck
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to FreshCheck Cowork</span>
         </Link>
       </main>
     </div>
   );
 }
-
