@@ -23,6 +23,7 @@ import { AnnotatedAnswer } from "./AnnotatedAnswer";
 import { ClaimCard } from "./ClaimCard";
 import { ScoreBadge } from "./ScoreBadge";
 import { DrawerClaimData } from "./EvidenceDrawer";
+import { CodexBlobPet } from "./CodexBlobPet";
 import { SAMPLE_ANSWERS, SampleAnswer } from "@/data/samples";
 import { generateCorrectedAnswer, CorrectedAnswerResult } from "@/lib/correct";
 
@@ -77,6 +78,7 @@ export function CenterWorkspace({
   const [inputTab, setInputTab] = useState<"chat" | "verify">("verify");
   const [showCorrected, setShowCorrected] = useState(false);
   const [correctedResult, setCorrectedResult] = useState<CorrectedAnswerResult | null>(null);
+  const [isTyping, setIsTyping] = useState(false);
 
   const handleToggleCorrected = () => {
     if (!correctedResult && claims.length > 0) {
@@ -313,9 +315,17 @@ export function CenterWorkspace({
 
       {/* Floating Bottom Prompt Bar Container */}
       <div className="p-3 sm:p-5 md:p-6 bg-gradient-to-t from-white via-white/95 to-transparent flex-shrink-0 max-w-3xl mx-auto w-full space-y-2.5 sm:space-y-3">
-        {/* Floating Notification / Mascot Pill */}
-        <div className="flex items-center justify-center px-1">
-          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-white border border-[#E2E8F0] shadow-xs text-[11px] sm:text-xs text-[#334155] text-center flex-wrap justify-center">
+        {/* Floating Notification with Codex Blob Mascot Pet */}
+        <div className="flex items-end justify-center gap-2 sm:gap-3 px-1 relative">
+          <CodexBlobPet
+            isChecking={isChecking}
+            isTyping={isTyping}
+            overallScore={overallScore}
+            staleCount={summaryCounts?.stale ?? 0}
+            size="md"
+          />
+
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-white border border-[#E2E8F0] shadow-xs text-[11px] sm:text-xs text-[#334155] text-center flex-wrap justify-center mb-1">
             <span className="text-xs">🛡️</span>
             <span>
               <strong className="font-semibold text-[#0F172A]">Heads up</strong> Answers may contain stale pricing or deprecated APIs.
@@ -360,6 +370,8 @@ export function CenterWorkspace({
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={handleKeyDown}
+              onFocus={() => setIsTyping(true)}
+              onBlur={() => setIsTyping(false)}
               disabled={isChecking}
               placeholder="Paste any AI answer to audit for expired facts..."
               className="w-full text-xs sm:text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none resize-none leading-relaxed bg-transparent font-sans min-h-[60px]"

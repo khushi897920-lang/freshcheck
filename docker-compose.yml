@@ -28,3 +28,4 @@ services:
     depends_on:
       - bifrost
     restart: unless-stopped
+
