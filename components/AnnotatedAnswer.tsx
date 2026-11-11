@@ -19,7 +19,7 @@ export function AnnotatedAnswer({
 
   if (!claims || claims.length === 0) {
     return (
-      <div className="p-4 rounded-xl bg-white border border-[#E2E8F0] text-xs text-[#1E232B] leading-relaxed whitespace-pre-wrap">
+      <div className="p-5 rounded-xl bg-white border border-[#E2E8F0] text-sm text-[#1E293B] leading-7 whitespace-pre-wrap shadow-xs">
         {originalText}
       </div>
     );
@@ -78,7 +78,7 @@ export function AnnotatedAnswer({
         type="button"
         onClick={() => onSelectClaim(claim)}
         title={claim.explanation || "Click to inspect evidence"}
-        className={`inline cursor-pointer px-1 py-0.5 rounded transition-all text-left ${highlightClasses} ${
+        className={`inline cursor-pointer px-1.5 py-0.5 rounded-md transition-all text-left ${highlightClasses} ${
           isSelected ? "ring-2 ring-[#6366F1]" : "hover:opacity-90"
         }`}
       >
@@ -96,7 +96,7 @@ export function AnnotatedAnswer({
   }
 
   return (
-    <div className="p-4 rounded-xl bg-white border border-[#E2E8F0] text-xs text-[#1E232B] leading-relaxed whitespace-pre-wrap font-sans shadow-xs">
+    <div className="p-5 rounded-xl bg-white border border-[#E2E8F0] text-sm md:text-[14.5px] text-[#1E293B] leading-7 whitespace-pre-wrap font-sans shadow-xs">
       {segments}
     </div>
   );
