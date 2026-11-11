@@ -207,3 +207,4 @@ function heuristicExtract(text: string): ExtractedClaim[] {
     };
   });
 }
+

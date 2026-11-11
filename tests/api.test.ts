@@ -52,3 +52,4 @@ describe("Phase 7 — Streaming SSE API & Saved Check Retrieval", () => {
     expect(res.status).toBe(404);
   });
 });
+

@@ -27,3 +27,4 @@ export function SampleChips({ onSelectSample, disabled }: SampleChipsProps) {
     </div>
   );
 }
+

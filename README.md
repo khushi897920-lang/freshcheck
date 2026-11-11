@@ -174,3 +174,4 @@ freshcheck/
 - [x] **Quota Protection**: 24-hour cache on Tavily queries; max 8 claims verified per check.
 - [x] **Reliability & Failover**: Automatic fallback handling with UI notification banner.
 - [x] **Deterministic Scoring**: Formula implemented in plain TypeScript; no hallucinated scores.
+

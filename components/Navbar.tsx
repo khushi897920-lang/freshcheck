@@ -52,3 +52,4 @@ export function Navbar({ fallbackBanner }: { fallbackBanner?: boolean }) {
     </header>
   );
 }
+

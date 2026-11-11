@@ -70,3 +70,4 @@ alter table checks enable row level security;
 alter table claims enable row level security;
 alter table evidence enable row level security;
 alter table search_cache enable row level security;
+

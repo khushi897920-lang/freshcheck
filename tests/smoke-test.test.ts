@@ -37,3 +37,4 @@ describe("Phase 2 — Smoke test Bifrost & Tavily", () => {
     expect(validated.status).toBe("active");
   });
 });
+

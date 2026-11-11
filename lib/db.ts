@@ -218,3 +218,4 @@ export async function getCheckById(id: string): Promise<CheckRecord | null> {
     claims: claimsWithEvidence,
   };
 }
+

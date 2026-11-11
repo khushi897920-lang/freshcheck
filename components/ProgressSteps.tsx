@@ -45,7 +45,7 @@ export function ProgressSteps({ currentStep }: ProgressStepsProps) {
     <div
       role="region"
       aria-live="polite"
-      className="p-4 rounded-xl bg-[#12151C] border border-[#1F2430] mb-6 shadow-sm"
+      className="p-3.5 rounded-xl bg-white border border-[#E2E8F0] shadow-xs"
     >
       <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 sm:pb-0">
         {STEPS.map((step, idx) => {
@@ -53,22 +53,22 @@ export function ProgressSteps({ currentStep }: ProgressStepsProps) {
           const isCurrent = currentIndex === idx;
 
           return (
-            <div key={step.id} className="flex items-center gap-2 flex-1 min-w-[130px]">
-              <div className="flex items-center gap-2">
+            <div key={step.id} className="flex items-center gap-2 flex-1 min-w-[120px]">
+              <div className="flex items-center gap-1.5">
                 {isDone ? (
-                  <CheckCircle2 className="w-4 h-4 text-[#22C55E]" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981]" />
                 ) : isCurrent ? (
-                  <Loader2 className="w-4 h-4 text-[#6366F1] animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 text-[#6366F1] animate-spin" />
                 ) : (
-                  <Circle className="w-4 h-4 text-[#8A91A3]/40" />
+                  <Circle className="w-3.5 h-3.5 text-slate-300" />
                 )}
                 <span
-                  className={`text-xs font-medium ${
+                  className={`text-[11px] font-medium ${
                     isCurrent
-                      ? "text-[#E6E8EE] font-semibold"
+                      ? "text-[#1E232B] font-semibold"
                       : isDone
-                      ? "text-[#22C55E]"
-                      : "text-[#8A91A3]/60"
+                      ? "text-[#10B981]"
+                      : "text-slate-400"
                   }`}
                 >
                   {step.label}
@@ -77,7 +77,7 @@ export function ProgressSteps({ currentStep }: ProgressStepsProps) {
               {idx < STEPS.length - 1 && (
                 <div
                   className={`h-0.5 flex-1 mx-2 ${
-                    isDone ? "bg-[#22C55E]/40" : "bg-[#1F2430]"
+                    isDone ? "bg-[#10B981]/40" : "bg-slate-100"
                   }`}
                 />
               )}

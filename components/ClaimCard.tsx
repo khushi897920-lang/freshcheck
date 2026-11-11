@@ -17,13 +17,13 @@ export function ClaimCard({
 }: ClaimCardProps) {
   if (isLoading) {
     return (
-      <div className="p-4 rounded-xl bg-[#12151C] border border-[#1F2430] animate-pulse space-y-3">
+      <div className="p-3.5 rounded-xl bg-white border border-[#E2E8F0] animate-pulse space-y-2.5">
         <div className="flex items-center justify-between">
-          <div className="h-4 w-24 bg-[#1F2430] rounded" />
-          <div className="h-5 w-16 bg-[#1F2430] rounded-full" />
+          <div className="h-3.5 w-20 bg-slate-100 rounded" />
+          <div className="h-4 w-14 bg-slate-100 rounded-full" />
         </div>
-        <div className="h-4 w-3/4 bg-[#1F2430] rounded" />
-        <div className="h-3 w-1/2 bg-[#1F2430] rounded" />
+        <div className="h-3.5 w-3/4 bg-slate-100 rounded" />
+        <div className="h-3 w-1/2 bg-slate-100 rounded" />
       </div>
     );
   }
@@ -31,23 +31,23 @@ export function ClaimCard({
   return (
     <div
       onClick={() => onSelect(claim)}
-      className={`p-4 rounded-xl bg-[#12151C] border transition-all cursor-pointer group text-left ${
+      className={`p-3.5 rounded-xl bg-white border transition-all cursor-pointer group text-left ${
         isSelected
-          ? "border-[#6366F1] ring-1 ring-[#6366F1]"
-          : "border-[#1F2430] hover:border-[#6366F1]/50"
+          ? "border-[#6366F1] ring-2 ring-[#6366F1]/20 shadow-xs"
+          : "border-[#E2E8F0] hover:border-[#6366F1]/40 shadow-xs"
       }`}
     >
-      <div className="flex items-start justify-between gap-3 mb-2">
-        <div className="flex items-center gap-2">
+      <div className="flex items-start justify-between gap-2 mb-1.5">
+        <div className="flex items-center gap-1.5">
           {typeof claim.idx === "number" && (
-            <span className="text-[11px] font-mono text-[#8A91A3]">
+            <span className="text-[10px] font-mono text-[#94A3B8]">
               #{claim.idx + 1}
             </span>
           )}
-          <span className="text-[11px] font-mono uppercase px-2 py-0.5 rounded bg-[#0B0D12] border border-[#1F2430] text-[#8A91A3]">
+          <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-[#F1F5F9] border border-[#E2E8F0] text-[#64748B]">
             {claim.claim_type || "fact"}
           </span>
-          <span className="text-[10px] font-mono text-[#8A91A3]">
+          <span className="text-[9px] font-mono text-[#94A3B8]">
             {claim.volatility}
           </span>
         </div>
@@ -59,24 +59,24 @@ export function ClaimCard({
         />
       </div>
 
-      <p className="text-sm font-medium text-[#E6E8EE] group-hover:text-white transition-colors line-clamp-2">
+      <p className="text-xs font-medium text-[#1E232B] group-hover:text-[#6366F1] transition-colors line-clamp-2">
         "{claim.text}"
       </p>
 
       {claim.explanation && !claim.skipped && (
-        <p className="text-xs text-[#8A91A3] mt-2 line-clamp-1">
+        <p className="text-[11px] text-[#64748B] mt-1.5 line-clamp-1">
           {claim.explanation}
         </p>
       )}
 
-      <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-[#1F2430]/60 text-[11px] text-[#8A91A3]">
+      <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-[#F1F5F9] text-[10px] text-[#94A3B8]">
         <span>
           {claim.skipped
             ? "Not time-sensitive"
             : `${claim.evidence?.length ?? 0} Tavily sources`}
         </span>
         <span className="flex items-center gap-0.5 text-[#6366F1] font-medium group-hover:translate-x-0.5 transition-transform">
-          View evidence <ChevronRight className="w-3.5 h-3.5" />
+          Evidence <ChevronRight className="w-3 h-3" />
         </span>
       </div>
     </div>

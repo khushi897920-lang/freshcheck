@@ -55,3 +55,4 @@ describe("Phase 5 — Live Verification & Evidence Judging", () => {
     expect(judged.scoreBreakdown.finalScore).toBe(40);
   });
 });
+
