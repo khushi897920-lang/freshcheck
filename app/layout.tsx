@@ -4,6 +4,12 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "FreshCheck — Autonomous Temporal AI Verification",
   description: "Detect stale and outdated factual claims in AI answers using Bifrost and Tavily.",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/freshcheck-logo.png",
+  },
 };
 
 export default function RootLayout({

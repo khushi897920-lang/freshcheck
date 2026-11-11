@@ -89,7 +89,7 @@ export default function CheckResultPage() {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-[#DCE6F5] via-[#E7EDF9] to-[#E3EAF7] font-sans">
         <div className="p-6 rounded-2xl bg-white shadow-window border border-[#E2E8F0] flex items-center gap-3 text-xs text-[#1E232B] font-medium">
-          <Loader2 className="w-5 h-5 animate-spin text-[#6366F1]" />
+          <img src="/favicon.svg" alt="FreshCheck Logo" className="w-5 h-5 rounded-md animate-pulse" />
           <span>Loading verification report...</span>
         </div>
       </div>

@@ -132,9 +132,16 @@ export function CenterWorkspace({
             <span className="font-semibold text-xs hidden sm:inline">Menu</span>
           </button>
 
-          <span className="font-bold text-xs sm:text-sm tracking-tight text-[#0F172A] truncate">
-            FreshCheck Cowork
-          </span>
+          <div className="flex items-center gap-2 min-w-0">
+            <img
+              src="/favicon.svg"
+              alt="FreshCheck Logo"
+              className="w-5 h-5 rounded-md flex-shrink-0"
+            />
+            <span className="font-bold text-xs sm:text-sm tracking-tight text-[#0F172A] truncate">
+              FreshCheck Cowork
+            </span>
+          </div>
 
           {fallbackUsed && (
             <span className="hidden sm:inline-flex text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full font-mono font-medium">

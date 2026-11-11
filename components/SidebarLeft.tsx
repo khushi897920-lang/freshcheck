@@ -51,14 +51,16 @@ export function SidebarLeft({
         <div className="space-y-4">
           {/* Workspace Brand Header */}
           <div className="flex items-center justify-between px-1.5 pt-1">
-            <div className="flex items-center gap-2.5">
-              <div className="w-6.5 h-6.5 rounded-lg bg-[#6366F1]/10 border border-[#6366F1]/30 flex items-center justify-center text-[#6366F1]">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <span className="font-bold text-sm tracking-tight text-[#0F172A]">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <img
+                src="/favicon.svg"
+                alt="FreshCheck Logo"
+                className="w-6.5 h-6.5 rounded-lg shadow-2xs border border-[#DDD7CD] group-hover:scale-105 transition-transform"
+              />
+              <span className="font-bold text-sm tracking-tight text-[#0F172A] group-hover:text-[#6366F1] transition-colors">
                 FreshCheck
               </span>
-            </div>
+            </Link>
 
             <div className="flex items-center gap-1">
               <button

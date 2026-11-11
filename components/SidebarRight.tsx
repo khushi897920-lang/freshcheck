@@ -140,9 +140,11 @@ export function SidebarRight({
           <div className="p-3.5 rounded-xl bg-white border border-[#E2E8F0] shadow-xs space-y-1.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-md bg-[#10B981]/15 text-[#059669] flex items-center justify-center">
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
+                <img
+                  src="/favicon.svg"
+                  alt="FreshCheck Logo"
+                  className="w-6 h-6 rounded-md shadow-2xs flex-shrink-0"
+                />
                 <span className="font-bold text-xs text-[#0F172A]">
                   Verification &amp; Disclosures
                 </span>

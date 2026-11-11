@@ -11,9 +11,11 @@ export function Navbar({ fallbackBanner }: { fallbackBanner?: boolean }) {
       )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-lg bg-[#6366F1]/10 border border-[#6366F1]/30 flex items-center justify-center text-[#6366F1] group-hover:scale-105 transition-transform">
-            <ShieldCheck className="w-5 h-5" />
-          </div>
+          <img
+            src="/favicon.svg"
+            alt="FreshCheck Logo"
+            className="w-8 h-8 rounded-lg border border-[#2D3748] shadow-sm group-hover:scale-105 transition-transform"
+          />
           <div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-base tracking-tight text-[#E6E8EE]">
