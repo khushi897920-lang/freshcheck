@@ -136,7 +136,7 @@ export function CenterWorkspace({
             <img
               src="/favicon.svg"
               alt="FreshCheck Logo"
-              className="w-5 h-5 rounded-md flex-shrink-0"
+              className="w-5 h-5 max-w-[20px] max-h-[20px] object-contain flex-shrink-0 rounded-md"
             />
             <span className="font-bold text-xs sm:text-sm tracking-tight text-[#0F172A] truncate">
               FreshCheck Cowork
@@ -354,20 +354,14 @@ export function CenterWorkspace({
 
             <span className="font-bold text-[#0F172A] relative z-10">Heads up</span>
             <span className="relative z-10 text-[#334155]">
-              {petSpeechQuote || "Your newest emissions data is 84 days old."}
+              {petSpeechQuote || "LLMs assert outdated facts after cutoff. Check answers against live web evidence."}
             </span>
             <button
               type="button"
-              onClick={() => onSelectSample({
-                id: "emissions-scope",
-                title: "Scope 1 & 2 Emissions Audit",
-                category: "pricing_and_models",
-                text: "Under the SEBI BRSR Core guidelines for FY2026, assurance is voluntary for top 1000 listed entities, and Scope 1 and Scope 2 greenhouse gas reporting standards have been indefinitely delayed.",
-                answerDate: "2023-01-01",
-              })}
+              onClick={() => onSelectSample(SAMPLE_ANSWERS[0])}
               className="font-bold text-[#059669] hover:text-[#047857] hover:underline cursor-pointer inline-flex items-center gap-0.5 relative z-10 transition-colors whitespace-nowrap"
             >
-              Find bills →
+              Check facts →
             </button>
 
             {/* Carousel dots indicator on far right */}
@@ -381,7 +375,7 @@ export function CenterWorkspace({
         {/* Clean Glowing Gradient Border Input Box */}
         <div className="p-[1.5px] rounded-[22px] bg-gradient-to-r from-[#67E8F9]/40 via-[#A5B4FC]/30 to-[#DDD6FE]/50 shadow-[0_12px_32px_-8px_rgba(203,213,225,0.45)]">
           <div className="bg-white rounded-[20.5px] p-4 sm:p-5 space-y-3">
-            {/* Top row tabs: Chat vs Task */}
+            {/* Top row tabs: Verify Answer vs Task Pipeline */}
             <div className="flex items-center gap-1.5 text-xs font-medium">
               <button
                 type="button"
@@ -393,7 +387,7 @@ export function CenterWorkspace({
                 }`}
               >
                 <MessageSquare className="w-3.5 h-3.5 text-[#0F172A]" />
-                <span>Chat</span>
+                <span>Verify Answer</span>
               </button>
               <button
                 type="button"
@@ -405,7 +399,7 @@ export function CenterWorkspace({
                 }`}
               >
                 <SlidersHorizontal className="w-3.5 h-3.5 text-[#64748B]" />
-                <span>Task</span>
+                <span>Task Pipeline</span>
               </button>
             </div>
 
@@ -418,7 +412,7 @@ export function CenterWorkspace({
               onFocus={() => setIsTyping(true)}
               onBlur={() => setIsTyping(false)}
               disabled={isChecking}
-              placeholder="Type your query, ask to audit emissions, or attach a bill/invoice..."
+              placeholder="Paste any AI-generated response to audit for expired facts, deprecated APIs, or outdated pricing..."
               className="w-full text-xs sm:text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none resize-none leading-relaxed bg-transparent font-sans min-h-[64px] sm:min-h-[72px]"
             />
 
@@ -436,53 +430,57 @@ export function CenterWorkspace({
               </div>
             )}
 
-            {/* Bottom Toolbar with 4 Exact Pills and Squircle Send Button */}
+            {/* Bottom Toolbar with 4 FreshCheck Prototype Pills and Squircle Send Button */}
             <div className="flex items-center justify-between pt-2.5 border-t border-[#F1F5F9] gap-2">
               <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-0.5 scrollbar-none flex-1">
-                {/* 1. Attach Bill / PDF (Pink) */}
+                {/* 1. API & Library Deprecations (Pink) */}
                 <button
                   type="button"
                   onClick={() => onSelectSample(SAMPLE_ANSWERS[0])}
                   className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#FFF1F2] text-[#E11D48] border border-[#FFE4E6] hover:bg-[#FFE4E6] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
+                  title="Benchmark 1: Node.js, Next.js & Python release lifecycle"
                 >
-                  <Paperclip className="w-3.5 h-3.5 text-[#E11D48]" />
-                  <span>Attach Bill / PDF</span>
+                  <FileCode className="w-3.5 h-3.5 text-[#E11D48]" />
+                  <span>API Deprecations</span>
                 </button>
 
-                {/* 2. Scope 1 & 2 Audit (Mint) */}
-                <button
-                  type="button"
-                  onClick={() => onSelectSample({
-                    id: "emissions-scope",
-                    title: "Scope 1 & 2 Emissions Audit",
-                    category: "pricing_and_models",
-                    text: "Under the SEBI BRSR Core guidelines for FY2026, assurance is voluntary for top 1000 listed entities, and Scope 1 and Scope 2 greenhouse gas reporting standards have been indefinitely delayed.",
-                    answerDate: "2023-01-01",
-                  })}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#F0FDFA] text-[#0D9488] border border-[#CCFBF1] hover:bg-[#CCFBF1] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
-                >
-                  <BarChart2 className="w-3.5 h-3.5 text-[#0D9488]" />
-                  <span>Scope 1 &amp; 2 Audit</span>
-                </button>
-
-                {/* 3. Write a report (Sky Blue) */}
+                {/* 2. Leadership & C-Suite (Mint) */}
                 <button
                   type="button"
                   onClick={() => onSelectSample(SAMPLE_ANSWERS[1])}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#F0F9FF] text-[#0284C7] border border-[#E0F2FE] hover:bg-[#E0F2FE] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
+                  className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#F0FDFA] text-[#0D9488] border border-[#CCFBF1] hover:bg-[#CCFBF1] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
+                  title="Benchmark 2: Corporate leadership & CEO tenure verification"
                 >
-                  <FileEdit className="w-3.5 h-3.5 text-[#0284C7]" />
-                  <span>Write a report</span>
+                  <Users className="w-3.5 h-3.5 text-[#0D9488]" />
+                  <span>Leadership Audit</span>
                 </button>
 
-                {/* 4. Simulate Levers (Amber) */}
+                {/* 3. AI Models & SaaS Pricing (Sky Blue) */}
                 <button
                   type="button"
                   onClick={() => onSelectSample(SAMPLE_ANSWERS[2])}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#FFFBEB] text-[#D97706] border border-[#FEF3C7] hover:bg-[#FEF3C7] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
+                  className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#F0F9FF] text-[#0284C7] border border-[#E0F2FE] hover:bg-[#E0F2FE] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
+                  title="Benchmark 3: GPT-4, Claude & OpenAI token pricing drift"
                 >
-                  <SlidersHorizontal className="w-3.5 h-3.5 text-[#D97706]" />
-                  <span>Simulate Levers</span>
+                  <Coins className="w-3.5 h-3.5 text-[#0284C7]" />
+                  <span>Model Pricing Drift</span>
+                </button>
+
+                {/* 4. Regulatory Standards (Amber) */}
+                <button
+                  type="button"
+                  onClick={() => onSelectSample({
+                    id: "sebi-regulations",
+                    title: "Regulatory Compliance Standards",
+                    category: "pricing_and_models",
+                    text: "Under the SEBI BRSR Core guidelines for FY2026, assurance is voluntary for top 1000 listed entities, and the global CSRD reporting standard has been indefinitely delayed.",
+                    answerDate: "2023-01-01",
+                  })}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#FFFBEB] text-[#D97706] border border-[#FEF3C7] hover:bg-[#FEF3C7] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
+                  title="Benchmark 4: SEBI BRSR & legal compliance requirements"
+                >
+                  <Scale className="w-3.5 h-3.5 text-[#D97706]" />
+                  <span>Regulatory Standards</span>
                 </button>
               </div>
 
@@ -492,7 +490,7 @@ export function CenterWorkspace({
                 onClick={onCheckFreshness}
                 disabled={isChecking || !text.trim()}
                 className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#EEF2F6] hover:bg-[#E2E8F0] active:scale-95 disabled:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-[#334155] flex items-center justify-center transition-all flex-shrink-0 cursor-pointer shadow-2xs"
-                title="Send / Verify Freshness (⌘+Enter)"
+                title="Verify Freshness (⌘+Enter)"
               >
                 <ArrowUp className="w-4.5 h-4.5" />
               </button>

@@ -89,7 +89,7 @@ export default function CheckResultPage() {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-[#DCE6F5] via-[#E7EDF9] to-[#E3EAF7] font-sans">
         <div className="p-6 rounded-2xl bg-white shadow-window border border-[#E2E8F0] flex items-center gap-3 text-xs text-[#1E232B] font-medium">
-          <img src="/favicon.svg" alt="FreshCheck Logo" className="w-5 h-5 rounded-md animate-pulse" />
+          <img src="/favicon.svg" alt="FreshCheck Logo" className="w-5 h-5 max-w-[20px] max-h-[20px] object-contain flex-shrink-0 rounded-md animate-pulse" />
           <span>Loading verification report...</span>
         </div>
       </div>
@@ -138,6 +138,7 @@ export default function CheckResultPage() {
         onNewCheck={handleNewCheck}
         isProcessing={false}
         activeTaskId={check.id}
+        onLoadBenchmark={() => router.push("/")}
       />
 
       {/* Center White Rounded Card Workspace */}

@@ -24,6 +24,7 @@ interface SidebarLeftProps {
   isProcessing?: boolean;
   isOpen: boolean;
   onClose: () => void;
+  onLoadBenchmark?: (id: string) => void;
 }
 
 export function SidebarLeft({
@@ -32,6 +33,7 @@ export function SidebarLeft({
   isProcessing = false,
   isOpen,
   onClose,
+  onLoadBenchmark,
 }: SidebarLeftProps) {
   if (!isOpen) return null;
 
@@ -51,11 +53,11 @@ export function SidebarLeft({
         <div className="space-y-4">
           {/* Workspace Brand Header */}
           <div className="flex items-center justify-between px-1.5 pt-1">
-            <Link href="/" className="flex items-center gap-2.5 group">
+            <Link href="/" className="flex items-center gap-2 group">
               <img
                 src="/favicon.svg"
                 alt="FreshCheck Logo"
-                className="w-6.5 h-6.5 rounded-lg shadow-2xs border border-[#DDD7CD] group-hover:scale-105 transition-transform"
+                className="w-5 h-5 max-w-[20px] max-h-[20px] object-contain flex-shrink-0 rounded-md border border-[#DDD7CD] group-hover:scale-105 transition-transform"
               />
               <span className="font-bold text-sm tracking-tight text-[#0F172A] group-hover:text-[#6366F1] transition-colors">
                 FreshCheck
@@ -190,17 +192,45 @@ export function SidebarLeft({
             </div>
 
             <div className="space-y-1 px-1">
-              <div className="flex items-center gap-2 p-2 rounded-lg text-[#475569] hover:text-[#0F172A] hover:bg-white/60 transition-colors cursor-pointer font-medium text-xs">
+              <div
+                onClick={() => {
+                  onLoadBenchmark && onLoadBenchmark("api-versions");
+                  if (typeof window !== "undefined" && window.innerWidth < 1024) onClose();
+                }}
+                className="flex items-center gap-2 p-2 rounded-lg text-[#475569] hover:text-[#0F172A] hover:bg-white/60 transition-colors cursor-pointer font-medium text-xs"
+              >
                 <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
-                <span className="truncate">Node.js LTS Version Check</span>
+                <span className="truncate">Node.js &amp; API Deprecations</span>
               </div>
-              <div className="flex items-center gap-2 p-2 rounded-lg text-[#475569] hover:text-[#0F172A] hover:bg-white/60 transition-colors cursor-pointer font-medium text-xs">
+              <div
+                onClick={() => {
+                  onLoadBenchmark && onLoadBenchmark("company-leadership");
+                  if (typeof window !== "undefined" && window.innerWidth < 1024) onClose();
+                }}
+                className="flex items-center gap-2 p-2 rounded-lg text-[#475569] hover:text-[#0F172A] hover:bg-white/60 transition-colors cursor-pointer font-medium text-xs"
+              >
                 <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
-                <span className="truncate">YouTube / Twitter Leadership</span>
+                <span className="truncate">Leadership &amp; C-Suite</span>
               </div>
-              <div className="flex items-center gap-2 p-2 rounded-lg text-[#475569] hover:text-[#0F172A] hover:bg-white/60 transition-colors cursor-pointer font-medium text-xs">
+              <div
+                onClick={() => {
+                  onLoadBenchmark && onLoadBenchmark("pricing-and-models");
+                  if (typeof window !== "undefined" && window.innerWidth < 1024) onClose();
+                }}
+                className="flex items-center gap-2 p-2 rounded-lg text-[#475569] hover:text-[#0F172A] hover:bg-white/60 transition-colors cursor-pointer font-medium text-xs"
+              >
                 <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-                <span className="truncate">OpenAI GPT-3.5 Pricing Drift</span>
+                <span className="truncate">SaaS &amp; Model Pricing Drift</span>
+              </div>
+              <div
+                onClick={() => {
+                  onLoadBenchmark && onLoadBenchmark("sebi-regulations");
+                  if (typeof window !== "undefined" && window.innerWidth < 1024) onClose();
+                }}
+                className="flex items-center gap-2 p-2 rounded-lg text-[#475569] hover:text-[#0F172A] hover:bg-white/60 transition-colors cursor-pointer font-medium text-xs"
+              >
+                <span className="w-2 h-2 rounded-full bg-[#6366F1]" />
+                <span className="truncate">Regulatory &amp; Compliance</span>
               </div>
             </div>
           </div>

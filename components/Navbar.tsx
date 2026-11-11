@@ -14,7 +14,7 @@ export function Navbar({ fallbackBanner }: { fallbackBanner?: boolean }) {
           <img
             src="/favicon.svg"
             alt="FreshCheck Logo"
-            className="w-8 h-8 rounded-lg border border-[#2D3748] shadow-sm group-hover:scale-105 transition-transform"
+            className="w-6 h-6 max-w-[24px] max-h-[24px] object-contain rounded-md border border-[#2D3748] shadow-sm group-hover:scale-105 transition-transform flex-shrink-0"
           />
           <div>
             <div className="flex items-center gap-2">

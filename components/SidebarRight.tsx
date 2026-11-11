@@ -143,7 +143,7 @@ export function SidebarRight({
                 <img
                   src="/favicon.svg"
                   alt="FreshCheck Logo"
-                  className="w-6 h-6 rounded-md shadow-2xs flex-shrink-0"
+                  className="w-5 h-5 max-w-[20px] max-h-[20px] object-contain rounded-md shadow-2xs flex-shrink-0"
                 />
                 <span className="font-bold text-xs text-[#0F172A]">
                   Verification &amp; Disclosures

@@ -216,6 +216,7 @@ export default function FreshCheckApp() {
         onNewCheck={handleNewCheck}
         isProcessing={isChecking}
         activeTaskId={checkId || undefined}
+        onLoadBenchmark={handleLoadBenchmark}
       />
 
       {/* Center White Rounded Card Workspace */}
