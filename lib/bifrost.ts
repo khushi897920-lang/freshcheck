@@ -5,6 +5,7 @@ export interface BifrostCompletionOptions {
   messages: Array<{ role: "system" | "user" | "assistant"; content: string }>;
   temperature?: number;
   jsonMode?: boolean;
+  timeoutMs?: number;
 }
 
 export interface BifrostCompletionResult<T = string> {
@@ -20,10 +21,12 @@ const MODEL_PRIMARY = process.env.MODEL_PRIMARY || "gemini-1.5-flash";
 const MODEL_FALLBACK = process.env.MODEL_FALLBACK || "llama-3.1-8b-instant";
 
 // Create OpenAI client pointed at Bifrost
-export function getBifrostClient(): OpenAI {
+export function getBifrostClient(timeoutMs = 4000): OpenAI {
   return new OpenAI({
     baseURL: BIFROST_BASE_URL,
     apiKey: BIFROST_API_KEY,
+    timeout: timeoutMs,
+    maxRetries: 0, // We control failover directly between primary and fallback
   });
 }
 
@@ -34,7 +37,7 @@ export async function executeBifrostCompletion<T = string>(
   options: BifrostCompletionOptions,
   schema?: ZodSchema<T>
 ): Promise<BifrostCompletionResult<T>> {
-  const client = getBifrostClient();
+  const client = getBifrostClient(options.timeoutMs ?? 2500);
 
   // Helper to attempt completion with a given model
   async function callModel(model: string): Promise<string> {
@@ -60,7 +63,7 @@ export async function executeBifrostCompletion<T = string>(
   try {
     rawText = await callModel(MODEL_PRIMARY);
   } catch (primaryErr) {
-    console.warn(`[Bifrost] Primary model (${MODEL_PRIMARY}) failed:`, primaryErr);
+    console.warn(`[Bifrost] Primary model (${MODEL_PRIMARY}) failed:`, (primaryErr as Error).message || primaryErr);
     console.info(`[Bifrost] Failing over to backup model: ${MODEL_FALLBACK}`);
     
     // Attempt 2: Fallback Model
@@ -69,7 +72,7 @@ export async function executeBifrostCompletion<T = string>(
       modelUsed = MODEL_FALLBACK;
       fallbackUsed = true;
     } catch (fallbackErr) {
-      console.error(`[Bifrost] Both primary and fallback models failed:`, fallbackErr);
+      console.warn(`[Bifrost] Both primary and fallback models failed:`, (fallbackErr as Error).message || fallbackErr);
       throw new Error(`Bifrost LLM gateway error: ${fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr)}`);
     }
   }
@@ -87,7 +90,7 @@ export async function executeBifrostCompletion<T = string>(
       };
     } catch (parseErr) {
       // Ground rule 5: "Validate every LLM JSON output with Zod. On invalid JSON retry once, then mark that claim UNVERIFIABLE instead of crashing."
-      console.warn(`[Bifrost] Zod validation failed. Attempting single retry with model ${modelUsed}...`, parseErr);
+      console.warn(`[Bifrost] Zod validation failed. Attempting single retry with model ${modelUsed}...`);
       try {
         const retryText = await callModel(modelUsed);
         const retryJson = JSON.parse(retryText);
