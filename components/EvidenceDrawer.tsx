@@ -63,8 +63,8 @@ export function EvidenceDrawer({ claim, isOpen, onClose }: EvidenceDrawerProps) 
         onClick={onClose}
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-lg bg-white border-l border-[#E2E8F0] p-6 shadow-2xl flex flex-col justify-between overflow-y-auto text-[#1E232B]">
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-4 sm:pl-10">
+        <div className="w-screen max-w-lg bg-white border-l border-[#E2E8F0] p-4 sm:p-6 shadow-2xl flex flex-col justify-between overflow-y-auto text-[#1E232B]">
           {/* Header */}
           <div className="space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">

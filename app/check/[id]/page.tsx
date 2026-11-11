@@ -23,6 +23,20 @@ export default function CheckResultPage() {
   const [answerDate, setAnswerDate] = useState("");
   const [claims, setClaims] = useState<DrawerClaimData[]>([]);
 
+  // Responsive sidebar visibility state
+  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsLeftSidebarOpen(window.innerWidth >= 1024);
+      setIsRightSidebarOpen(window.innerWidth >= 1280);
+    }
+  }, []);
+
+  const handleToggleLeftSidebar = () => setIsLeftSidebarOpen((prev) => !prev);
+  const handleToggleRightSidebar = () => setIsRightSidebarOpen((prev) => !prev);
+
   useEffect(() => {
     async function fetchCheck() {
       if (!id) return;
@@ -116,9 +130,11 @@ export default function CheckResultPage() {
   };
 
   return (
-    <div className="h-screen w-screen flex flex-row overflow-hidden bg-gradient-to-br from-[#DCE6F5] via-[#E7EDF9] to-[#E3EAF7]">
+    <div className="h-[100dvh] w-screen flex flex-row overflow-hidden bg-gradient-to-br from-[#DCE6F5] via-[#E7EDF9] to-[#E3EAF7]">
       {/* Left Sidebar */}
       <SidebarLeft
+        isOpen={isLeftSidebarOpen}
+        onClose={() => setIsLeftSidebarOpen(false)}
         onNewCheck={handleNewCheck}
         isProcessing={false}
         activeTaskId={check.id}
@@ -141,10 +157,16 @@ export default function CheckResultPage() {
         onSelectClaim={setSelectedClaim}
         onCheckFreshness={handleNewCheck}
         onSelectSample={handleSelectSample}
+        onToggleLeftSidebar={handleToggleLeftSidebar}
+        onToggleRightSidebar={handleToggleRightSidebar}
+        isLeftSidebarOpen={isLeftSidebarOpen}
+        isRightSidebarOpen={isRightSidebarOpen}
       />
 
       {/* Right Sidebar */}
       <SidebarRight
+        isOpen={isRightSidebarOpen}
+        onClose={() => setIsRightSidebarOpen(false)}
         checkId={check.id}
         overallScore={check.overall_score ?? null}
         claims={claims}

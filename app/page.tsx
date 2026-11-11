@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SidebarLeft } from "@/components/SidebarLeft";
 import { CenterWorkspace } from "@/components/CenterWorkspace";
 import { SidebarRight } from "@/components/SidebarRight";
@@ -25,6 +25,20 @@ export default function FreshCheckApp() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [selectedClaim, setSelectedClaim] = useState<DrawerClaimData | null>(null);
   const [checkId, setCheckId] = useState<string | null>(null);
+
+  // Responsive sidebar visibility state
+  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsLeftSidebarOpen(window.innerWidth >= 1024);
+      setIsRightSidebarOpen(window.innerWidth >= 1280);
+    }
+  }, []);
+
+  const handleToggleLeftSidebar = () => setIsLeftSidebarOpen((prev) => !prev);
+  const handleToggleRightSidebar = () => setIsRightSidebarOpen((prev) => !prev);
 
   const handleNewCheck = () => {
     setText("");
@@ -194,9 +208,11 @@ export default function FreshCheckApp() {
   };
 
   return (
-    <div className="h-screen w-screen flex flex-row overflow-hidden bg-gradient-to-br from-[#DCE6F5] via-[#E7EDF9] to-[#E3EAF7]">
+    <div className="h-[100dvh] w-screen flex flex-row overflow-hidden bg-gradient-to-br from-[#DCE6F5] via-[#E7EDF9] to-[#E3EAF7]">
       {/* Left Sidebar (Warm Oat/Sand #EFECE6) */}
       <SidebarLeft
+        isOpen={isLeftSidebarOpen}
+        onClose={() => setIsLeftSidebarOpen(false)}
         onNewCheck={handleNewCheck}
         isProcessing={isChecking}
         activeTaskId={checkId || undefined}
@@ -219,10 +235,16 @@ export default function FreshCheckApp() {
         onSelectClaim={setSelectedClaim}
         onCheckFreshness={handleCheckFreshness}
         onSelectSample={handleSelectSample}
+        onToggleLeftSidebar={handleToggleLeftSidebar}
+        onToggleRightSidebar={handleToggleRightSidebar}
+        isLeftSidebarOpen={isLeftSidebarOpen}
+        isRightSidebarOpen={isRightSidebarOpen}
       />
 
       {/* Right Sidebar (Soft Crisp Blue #F8FAFD) */}
       <SidebarRight
+        isOpen={isRightSidebarOpen}
+        onClose={() => setIsRightSidebarOpen(false)}
         checkId={checkId}
         overallScore={overallScore}
         claims={claims}
