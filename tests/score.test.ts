@@ -68,3 +68,4 @@ describe("computeOverallScore", () => {
     expect(computeOverallScore(claims)).toBe(100);
   });
 });
+

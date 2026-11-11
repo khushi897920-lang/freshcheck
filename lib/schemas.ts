@@ -52,3 +52,4 @@ export type ExtractedClaim = z.infer<typeof ExtractedClaimSchema>;
 export type ExtractionResponse = z.infer<typeof ExtractionResponseSchema>;
 export type Verdict = z.infer<typeof VerdictSchema>;
 export type JudgeResponse = z.infer<typeof JudgeResponseSchema>;
+

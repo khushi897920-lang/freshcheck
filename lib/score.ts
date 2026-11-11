@@ -111,3 +111,4 @@ export function computeOverallScore(
 
   return totalWeight === 0 ? 100 : Math.round(weightedSum / totalWeight);
 }
+
