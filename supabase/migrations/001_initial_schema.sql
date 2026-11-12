@@ -1,10 +1,11 @@
 -- FreshCheck Initial Schema (Geek Room Global AI Hackathon 2026)
--- Enable UUID generator
+-- Enable UUID generator (optional utility)
 create extension if not exists "uuid-ossp";
 
 -- Table 1: checks
+-- Note: id uses text to support flexible nanoid / uuid identifiers
 create table if not exists checks (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key default gen_random_uuid()::text,
   session_id text,
   input_text text not null,
   answer_date date null,
@@ -18,8 +19,8 @@ create table if not exists checks (
 
 -- Table 2: claims
 create table if not exists claims (
-  id uuid primary key default gen_random_uuid(),
-  check_id uuid not null references checks(id) on delete cascade,
+  id text primary key default gen_random_uuid()::text,
+  check_id text not null references checks(id) on delete cascade,
   idx int not null,
   text text not null,
   start_offset int null,
@@ -40,8 +41,8 @@ create table if not exists claims (
 
 -- Table 3: evidence
 create table if not exists evidence (
-  id uuid primary key default gen_random_uuid(),
-  claim_id uuid not null references claims(id) on delete cascade,
+  id text primary key default gen_random_uuid()::text,
+  claim_id text not null references claims(id) on delete cascade,
   url text not null,
   title text not null,
   domain text not null,
@@ -70,4 +71,11 @@ alter table checks enable row level security;
 alter table claims enable row level security;
 alter table evidence enable row level security;
 alter table search_cache enable row level security;
+
+-- Policies for service role (full access) and public reads
+create policy "Allow all access to service role on checks" on checks for all using (true);
+create policy "Allow all access to service role on claims" on claims for all using (true);
+create policy "Allow all access to service role on evidence" on evidence for all using (true);
+create policy "Allow all access to service role on search_cache" on search_cache for all using (true);
+
 
