@@ -322,10 +322,10 @@ export function SidebarRight({
               <div className="p-3.5 rounded-xl bg-white border border-[#E2E8F0] space-y-1.5">
                 <span className="text-xs text-[#64748B] block font-mono font-semibold">Bifrost Gateway</span>
                 <p className="text-xs font-bold text-[#0F172A]">
-                  Primary: Gemini 1.5 Flash
+                  Active Gateway: Bifrost Container (:8080)
                 </p>
                 <p className="text-xs text-[#475569]">
-                  Fallback: Llama 3.1 8B Instant
+                  Provider: Groq High-Speed Inference
                 </p>
               </div>
             </div>

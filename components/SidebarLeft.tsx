@@ -179,7 +179,7 @@ export function SidebarLeft({
                 <p className="text-xs font-semibold text-[#0F172A] truncate">
                   Bifrost Failover Pool
                 </p>
-                <p className="text-[11px] text-[#64748B]">Gemini 1.5 ➔ Llama 3.1</p>
+                <p className="text-[11px] text-[#64748B]">Bifrost Gateway · Groq</p>
               </div>
             </div>
           </div>

@@ -185,9 +185,9 @@ export function CenterWorkspace({
 
         {/* Right Controls: Model indicator + Right Sidebar Toggle */}
         <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#F8FAFD] border border-[#E2E8F0] text-[#0F172A] font-medium text-xs">
+          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50/70 border border-indigo-200/80 text-indigo-950 font-bold text-xs shadow-2xs">
             <Sparkles className="w-3.5 h-3.5 text-[#6366F1]" />
-            <span className="truncate max-w-[130px]">Gemini 1.5 · Tavily</span>
+            <span className="truncate">Bifrost · Tavily</span>
           </div>
 
           <button
