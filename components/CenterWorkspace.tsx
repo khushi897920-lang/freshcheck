@@ -25,6 +25,8 @@ import {
   Minimize2,
   Maximize2,
   RotateCw,
+  CheckCircle2,
+  ShieldCheck,
 } from "lucide-react";
 import { ProgressSteps, PipelineStep } from "./ProgressSteps";
 import { AnnotatedAnswer } from "./AnnotatedAnswer";
@@ -155,13 +157,13 @@ export function CenterWorkspace({
             onClick={onToggleLeftSidebar}
             className={`px-2.5 py-1.5 rounded-lg border transition-colors cursor-pointer flex items-center gap-1.5 ${
               isLeftSidebarOpen
-                ? "bg-indigo-50 border-indigo-200 text-[#4F46E5]"
-                : "bg-white border-[#E2E8F0] text-[#64748B] hover:text-[#0F172A] hover:bg-slate-50"
+                ? "bg-slate-100 border-slate-300 text-slate-900 font-bold shadow-2xs"
+                : "bg-white border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-50 font-medium"
             }`}
             title="Toggle Menu"
             aria-label="Toggle Navigation Menu"
           >
-            <PanelLeft className="w-4 h-4 text-[#6366F1]" />
+            <PanelLeft className="w-4 h-4 text-slate-900" />
             <span className="font-semibold text-xs hidden sm:inline">Menu</span>
           </button>
 
@@ -185,26 +187,26 @@ export function CenterWorkspace({
 
         {/* Right Controls: Model indicator + Right Sidebar Toggle */}
         <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50/70 border border-indigo-200/80 text-indigo-950 font-bold text-xs shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 text-[#6366F1]" />
+          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100/90 border border-slate-300/80 text-slate-900 font-bold text-xs shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-slate-900" />
             <span className="truncate">Bifrost · Tavily</span>
           </div>
 
           <button
             type="button"
             onClick={onToggleRightSidebar}
-            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border transition-colors cursor-pointer font-semibold text-xs ${
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border transition-colors cursor-pointer text-xs ${
               isRightSidebarOpen
-                ? "bg-indigo-50 border-indigo-200 text-[#4F46E5]"
-                : "bg-white border-[#E2E8F0] text-[#64748B] hover:text-[#0F172A] hover:bg-slate-50"
+                ? "bg-slate-100 border-slate-300 text-slate-900 font-bold shadow-2xs"
+                : "bg-white border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-50 font-medium"
             }`}
             title="Toggle Reports & Evidence"
             aria-label="Toggle Reports"
           >
-            <PanelRight className="w-4 h-4 text-[#6366F1]" />
+            <PanelRight className="w-4 h-4 text-slate-900" />
             <span>Reports</span>
             {claims.length > 0 && (
-              <span className="bg-[#6366F1] text-white text-[10px] px-1.5 py-0.2 rounded-full font-mono">
+              <span className="bg-slate-900 text-white text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold">
                 {claims.length}
               </span>
             )}
@@ -221,7 +223,7 @@ export function CenterWorkspace({
       </header>
 
       {/* Main Scrollable Canvas */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 md:space-y-8 flex flex-col justify-start">
+      <div className="flex-1 overflow-y-auto scrollbar-none p-4 sm:p-6 md:p-8 space-y-6 md:space-y-8 flex flex-col justify-start">
         {/* Welcome Hero (Shown when idle) */}
         {claims.length === 0 && !isChecking && !submittedText && (
           <div className="text-center my-auto pt-6 pb-2 space-y-3 select-none">
@@ -238,6 +240,34 @@ export function CenterWorkspace({
         {isChecking && (
           <div className="max-w-2xl mx-auto w-full">
             <ProgressSteps currentStep={step} />
+          </div>
+        )}
+
+        {/* Results View when 0 claims detected or pure answer returned */}
+        {claims.length === 0 && !isChecking && submittedText && (
+          <div className="max-w-3xl mx-auto w-full space-y-4">
+            <div className="p-6 rounded-2xl bg-white border border-[#CBD5E1] shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Answer &amp; Verification</span>
+                </div>
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  100% Stable
+                </span>
+              </div>
+
+              <div className="text-base text-slate-900 leading-relaxed font-sans whitespace-pre-line">
+                {submittedText}
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 flex items-center gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <span>
+                  No conflicting or outdated claims detected. This response consists of stable factual statements.
+                </span>
+              </div>
+            </div>
           </div>
         )}
 
@@ -412,7 +442,7 @@ export function CenterWorkspace({
                   onBlur={() => setIsTyping(false)}
                   disabled={isChecking}
                   placeholder="Ask a question or paste another answer to audit (Enter to verify)..."
-                  className="flex-1 text-sm sm:text-base text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none resize-none bg-transparent font-sans py-1 leading-normal overflow-y-auto"
+                  className="flex-1 text-sm sm:text-base text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none resize-none bg-transparent font-sans py-1 leading-normal overflow-y-auto scrollbar-none"
                   style={{ minHeight: "28px", maxHeight: "140px" }}
                 />
 
@@ -446,15 +476,16 @@ export function CenterWorkspace({
         </div>
       ) : (
         /* FULL EXPANDED PROMPT CARD */
-        <div className="p-3 sm:p-5 md:p-6 bg-gradient-to-t from-white via-white/95 to-transparent flex-shrink-0 max-w-3xl mx-auto w-full space-y-2 transition-all duration-300">
-          {/* Heads Up Speech Bubble + Blob Mascot */}
-          <div className="flex items-center gap-2.5 sm:gap-3 relative z-10 self-start sm:ml-2">
+        <div className="p-3 sm:p-5 md:p-6 bg-gradient-to-t from-white via-white/95 to-transparent flex-shrink-0 max-w-3xl mx-auto w-full transition-all duration-300">
+          {/* Heads Up Speech Bubble + Blob Mascot (Positioned slightly lower, right kissing the top border) */}
+          <div className="flex items-center gap-3 relative z-10 self-start sm:ml-4 -mb-1 sm:-mb-1.5">
             <CodexBlobPet
               isChecking={isChecking}
               isTyping={isTyping}
               overallScore={overallScore}
               staleCount={summaryCounts?.stale ?? 0}
-              size="md"
+              size="lg"
+              className="drop-shadow-sm flex-shrink-0"
               onSpeech={handlePetSpeech}
             />
 
@@ -482,7 +513,7 @@ export function CenterWorkspace({
           </div>
 
           {/* Clean Glowing Gradient Border Input Box */}
-          <div className="p-[1.5px] rounded-[22px] bg-gradient-to-r from-[#67E8F9]/40 via-[#A5B4FC]/30 to-[#DDD6FE]/50 shadow-[0_12px_32px_-8px_rgba(203,213,225,0.45)]">
+          <div className="relative z-10 p-[1.5px] rounded-[22px] bg-gradient-to-r from-[#67E8F9]/40 via-[#A5B4FC]/30 to-[#DDD6FE]/50 shadow-[0_12px_32px_-8px_rgba(203,213,225,0.45)]">
             <div className="bg-white rounded-[20.5px] p-4 sm:p-5 space-y-3">
               {/* Top row tabs: Verify Answer vs Task Pipeline + Minimize Button */}
               <div className="flex items-center justify-between text-xs font-medium">
@@ -541,7 +572,7 @@ export function CenterWorkspace({
                 onBlur={() => setIsTyping(false)}
                 disabled={isChecking}
                 placeholder="Paste any AI-generated response to audit for expired facts, deprecated APIs, or outdated pricing..."
-                className="w-full text-sm sm:text-base text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none resize-none leading-relaxed bg-transparent font-sans min-h-[72px] sm:min-h-[82px] max-h-[220px] overflow-y-auto"
+                className="w-full text-sm sm:text-base text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none resize-none leading-relaxed bg-transparent font-sans min-h-[72px] sm:min-h-[82px] max-h-[220px] overflow-y-auto scrollbar-none"
               />
 
               {/* Error Message if any */}

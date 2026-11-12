@@ -200,6 +200,30 @@ export async function insertClaims(
   return records;
 }
 
+export async function updateClaim(
+  id: string,
+  updates: Partial<ClaimRecord>
+): Promise<void> {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      await supabase.from("claims").update(updates).eq("id", id);
+    } catch (e) {
+      console.warn("[DB] Supabase update claim failed, updating memory store:", e);
+    }
+  }
+
+  ensureDbLoaded();
+  memoryClaims.forEach((claims, checkId) => {
+    const idx = claims.findIndex((c) => c.id === id);
+    if (idx !== -1) {
+      claims[idx] = { ...claims[idx], ...updates };
+      memoryClaims.set(checkId, claims);
+      persistDb();
+    }
+  });
+}
+
 export async function insertEvidence(
   evidence: Array<Omit<EvidenceRecord, "id">>
 ): Promise<EvidenceRecord[]> {
@@ -267,4 +291,52 @@ export async function getCheckById(id: string): Promise<CheckRecord | null> {
     claims: claimsWithEvidence,
   };
 }
+
+export async function listChecks(limit: number = 30): Promise<CheckRecord[]> {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("checks")
+        .select("id, session_id, input_text, answer_date, status, overall_score, model_used, created_at")
+        .eq("status", "done")
+        .order("created_at", { ascending: false })
+        .limit(limit);
+      if (!error && data) return data as CheckRecord[];
+    } catch (e) {
+      console.warn("[DB] Supabase listChecks failed, using memory store:", e);
+    }
+  }
+
+  ensureDbLoaded();
+  // Filter for completed checks with valid text
+  const allChecks = Array.from(memoryChecks.values()).filter(
+    (c) => c.status === "done" && c.input_text && c.input_text.trim().length > 0
+  );
+  // Sort descending by created_at
+  allChecks.sort((a, b) => {
+    const da = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const db = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return db - da;
+  });
+  return allChecks.slice(0, limit);
+}
+
+export async function deleteCheck(id: string): Promise<boolean> {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      await supabase.from("checks").delete().eq("id", id);
+    } catch (e) {
+      console.warn("[DB] Supabase deleteCheck failed:", e);
+    }
+  }
+
+  ensureDbLoaded();
+  const deleted = memoryChecks.delete(id);
+  memoryClaims.delete(id);
+  persistDb();
+  return deleted;
+}
+
 

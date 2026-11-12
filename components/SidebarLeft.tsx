@@ -1,22 +1,25 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import {
-  Search,
   Plus,
-  FileText,
-  Clock,
-  Sparkles,
   Settings,
-  ShieldCheck,
   ChevronDown,
+  ChevronRight,
   ArrowLeft,
-  CheckCircle2,
-  Cpu,
-  Globe,
   X,
-  PanelLeftClose,
+  Trash2,
+  Sparkles,
 } from "lucide-react";
+
+export interface HistoryItem {
+  id: string;
+  input_text: string;
+  overall_score?: number | null;
+  status: "processing" | "done" | "failed";
+  created_at?: string;
+}
 
 interface SidebarLeftProps {
   onNewCheck: () => void;
@@ -25,6 +28,76 @@ interface SidebarLeftProps {
   isOpen: boolean;
   onClose: () => void;
   onLoadBenchmark?: (id: string) => void;
+  history?: HistoryItem[];
+  onSelectCheck?: (id: string) => void;
+  onDeleteCheck?: (id: string) => void;
+  isLoadingHistory?: boolean;
+}
+
+function formatSingleLineTitle(text: string): string {
+  if (!text) return "Untitled check";
+  const cleaned = text.trim().replace(/\s+/g, " ");
+  return cleaned;
+}
+
+function groupHistoryByDate(items: HistoryItem[]) {
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startOfYesterday = startOfToday - 86400000;
+  const startOf7Days = startOfToday - 7 * 86400000;
+  const startOf30Days = startOfToday - 30 * 86400000;
+
+  const groups: { label: string; items: HistoryItem[] }[] = [
+    { label: "Today", items: [] },
+    { label: "Yesterday", items: [] },
+    { label: "Previous 7 Days", items: [] },
+    { label: "Previous 30 Days", items: [] },
+    { label: "Older", items: [] },
+  ];
+
+  for (const item of items) {
+    if (!item.created_at) {
+      groups[4].items.push(item);
+      continue;
+    }
+    const t = new Date(item.created_at).getTime();
+    if (t >= startOfToday) {
+      groups[0].items.push(item);
+    } else if (t >= startOfYesterday) {
+      groups[1].items.push(item);
+    } else if (t >= startOf7Days) {
+      groups[2].items.push(item);
+    } else if (t >= startOf30Days) {
+      groups[3].items.push(item);
+    } else {
+      groups[4].items.push(item);
+    }
+  }
+
+  return groups.filter((g) => g.items.length > 0);
+}
+
+function renderScoreBadge(score?: number | null) {
+  if (score === null || score === undefined) return null;
+  if (score >= 75) {
+    return (
+      <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-100/80 px-1.5 py-0.5 rounded leading-none">
+        {score}%
+      </span>
+    );
+  }
+  if (score >= 40) {
+    return (
+      <span className="text-[10px] font-mono font-bold text-amber-700 bg-amber-100/80 px-1.5 py-0.5 rounded leading-none">
+        {score}%
+      </span>
+    );
+  }
+  return (
+    <span className="text-[10px] font-mono font-bold text-rose-700 bg-rose-100/80 px-1.5 py-0.5 rounded leading-none">
+      {score}%
+    </span>
+  );
 }
 
 export function SidebarLeft({
@@ -34,25 +107,30 @@ export function SidebarLeft({
   isOpen,
   onClose,
   onLoadBenchmark,
+  history = [],
+  onSelectCheck,
+  onDeleteCheck,
+  isLoadingHistory = false,
 }: SidebarLeftProps) {
+  const [isBenchmarksOpen, setIsBenchmarksOpen] = useState(false);
+
   if (!isOpen) return null;
+
+  const grouped = groupHistoryByDate(history);
 
   return (
     <>
-      {/* Mobile & Tablet Backdrop */}
+      {/* Mobile Backdrop */}
       <div
         className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 lg:hidden transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-72 sm:w-64 max-w-[85vw] flex-shrink-0 bg-[#EFECE6] border-r border-[#E0DACF] flex flex-col justify-between p-3.5 select-none text-[#2D3139] text-xs font-sans shadow-2xl lg:shadow-none transition-transform duration-200 ease-in-out`}
-      >
-        {/* Top Section */}
-        <div className="space-y-4">
-          {/* Workspace Brand Header */}
-          <div className="flex items-center justify-between px-1.5 pt-1">
+      <aside className="fixed lg:static inset-y-0 left-0 z-50 w-64 max-w-[85vw] flex-shrink-0 bg-[#EFECE6] border-r border-[#E0DACF] flex flex-col justify-between p-3 select-none text-[#2D3139] text-xs font-sans shadow-2xl lg:shadow-none transition-transform duration-200 ease-in-out h-full overflow-hidden">
+        {/* Top: Brand Header & New Check (ChatGPT Style) */}
+        <div className="space-y-2.5 flex-shrink-0">
+          <div className="flex items-center justify-between px-1 pt-0.5">
             <Link href="/" className="flex items-center gap-2 group">
               <img
                 src="/favicon.svg"
@@ -64,27 +142,17 @@ export function SidebarLeft({
               </span>
             </Link>
 
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                className="p-1.5 rounded-md text-[#64748B] hover:text-[#0F172A] hover:bg-[#E5E0D7] transition-colors cursor-pointer"
-                title="Search (⌘K)"
-              >
-                <Search className="w-3.5 h-3.5" />
-              </button>
-              {/* Close Button on Mobile / Desktop */}
-              <button
-                type="button"
-                onClick={onClose}
-                className="p-1.5 rounded-md text-[#64748B] hover:text-[#0F172A] hover:bg-[#E5E0D7] transition-colors cursor-pointer"
-                title="Close sidebar"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1 rounded-md text-[#64748B] hover:text-[#0F172A] hover:bg-[#E5E0D7] transition-colors cursor-pointer"
+              title="Close sidebar"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
 
-          {/* New Check Button */}
+          {/* New Check Button (Single line, ChatGPT style) */}
           <button
             type="button"
             onClick={() => {
@@ -93,164 +161,160 @@ export function SidebarLeft({
                 onClose();
               }
             }}
-            className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white border border-[#DDD7CD] hover:border-[#6366F1]/50 shadow-xs font-semibold text-xs text-[#0F172A] transition-all cursor-pointer group min-h-[42px]"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-white border border-[#DDD7CD] hover:border-[#6366F1]/50 shadow-2xs font-medium text-xs text-[#0F172A] transition-all cursor-pointer group"
           >
-            <div className="flex items-center gap-2">
-              <Plus className="w-3.5 h-3.5 text-[#6366F1] group-hover:scale-110 transition-transform" />
-              <span>New check</span>
+            <div className="flex items-center gap-2 truncate">
+              <Plus className="w-4 h-4 text-[#6366F1] group-hover:scale-110 transition-transform flex-shrink-0" />
+              <span className="truncate">New check</span>
             </div>
-            <span className="text-[10px] font-mono text-[#64748B] bg-slate-100 px-1.5 py-0.5 rounded">⌘N</span>
+            <span className="text-[10px] font-mono text-[#94A3B8] bg-slate-100 px-1 py-0.5 rounded">⌘N</span>
           </button>
+        </div>
 
-          {/* Navigation Links */}
-          <nav className="space-y-0.5">
-            <Link
-              href="/"
-              onClick={() => {
-                if (typeof window !== "undefined" && window.innerWidth < 1024) onClose();
-              }}
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[#0F172A] bg-[#E5E0D7]/80 font-semibold text-xs min-h-[38px]"
-            >
-              <Search className="w-3.5 h-3.5 text-[#6366F1]" />
-              <span>Search &amp; verify</span>
-            </Link>
-            <Link
-              href="/how-it-works"
-              onClick={() => {
-                if (typeof window !== "undefined" && window.innerWidth < 1024) onClose();
-              }}
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[#334155] hover:text-[#0F172A] hover:bg-[#E5E0D7]/50 font-medium transition-colors text-xs min-h-[38px]"
-            >
-              <Cpu className="w-3.5 h-3.5 text-[#64748B]" />
-              <span>Bifrost gateway</span>
-            </Link>
-            <a
-              href="https://tavily.com"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[#334155] hover:text-[#0F172A] hover:bg-[#E5E0D7]/50 font-medium transition-colors text-xs min-h-[38px]"
-            >
-              <Globe className="w-3.5 h-3.5 text-[#64748B]" />
-              <span>Tavily intelligence</span>
-            </a>
-            <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[#334155] hover:text-[#0F172A] hover:bg-[#E5E0D7]/50 font-medium transition-colors text-xs min-h-[38px] cursor-pointer">
-              <FileText className="w-3.5 h-3.5 text-[#64748B]" />
-              <span>Reports &amp; files</span>
+        {/* Scrollable Center: Ultra-minimal ChatGPT Chat History */}
+        <div className="flex-1 overflow-y-auto scrollbar-none my-2 space-y-3 pr-0.5">
+          {isLoadingHistory && (
+            <div className="py-4 text-center text-[#94A3B8] text-xs">
+              Loading history...
             </div>
-          </nav>
+          )}
 
-          {/* Active Tasks & Pipeline Status */}
-          <div className="pt-2 border-t border-[#E0DACF]/70 space-y-2">
-            <div className="flex items-center justify-between text-[11px] font-bold text-[#64748B] px-2 uppercase tracking-wider">
-              <span>Tasks</span>
-              <div className="flex items-center gap-1">
-                <span className="text-[10px] font-mono text-[#64748B]">
-                  {isProcessing ? "1 RUNNING" : "READY"}
-                </span>
-                <ChevronDown className="w-3 h-3 text-[#64748B]" />
-              </div>
+          {!isLoadingHistory && history.length === 0 && (
+            <div className="p-3 text-center rounded-lg text-[#94A3B8] text-[11px]">
+              No past checks yet.
             </div>
+          )}
 
-            <div className="space-y-1.5 px-1">
-              <div className="p-2.5 rounded-xl bg-white/90 border border-[#DDD7CD] shadow-2xs space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-[#0F172A] text-xs truncate">
-                    {isProcessing ? "Verifying factual claims..." : "Ready for input"}
-                  </span>
-                  {isProcessing ? (
-                    <span className="w-2 h-2 rounded-full bg-[#6366F1] animate-ping" />
-                  ) : (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981]" />
-                  )}
+          {!isLoadingHistory &&
+            grouped.map((group) => (
+              <div key={group.label} className="space-y-0.5">
+                <div className="text-[10px] font-semibold text-[#8E8EA0] px-2 py-1 tracking-wider uppercase">
+                  {group.label}
                 </div>
-                <p className="text-[11px] text-[#64748B] font-mono">
-                  {isProcessing ? "Active · Bifrost & Tavily" : "Idle · Standing by"}
-                </p>
-              </div>
+                {group.items.map((item) => {
+                  const isActive = activeTaskId === item.id;
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => {
+                        onSelectCheck && onSelectCheck(item.id);
+                        if (typeof window !== "undefined" && window.innerWidth < 1024) {
+                          onClose();
+                        }
+                      }}
+                      className={`group relative flex items-center justify-between h-8 px-2.5 rounded-lg text-xs cursor-pointer select-none transition-colors ${
+                        isActive
+                          ? "bg-[#E5E0D7] text-[#0F172A] font-semibold"
+                          : "text-[#334155] hover:text-[#0F172A] hover:bg-[#E5E0D7]/60 font-normal"
+                      }`}
+                      title={item.input_text}
+                    >
+                      <span className="truncate flex-1 pr-2 text-left">
+                        {formatSingleLineTitle(item.input_text)}
+                      </span>
 
-              <div className="p-2 rounded-lg bg-transparent hover:bg-white/40 transition-colors space-y-0.5">
-                <p className="text-xs font-semibold text-[#0F172A] truncate">
-                  Tavily Query Cache
-                </p>
-                <p className="text-[11px] text-[#64748B]">24-hour TTL active</p>
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        {renderScoreBadge(item.overall_score)}
+                        {onDeleteCheck && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDeleteCheck(item.id);
+                            }}
+                            className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-slate-400 hover:text-rose-600 transition-opacity"
+                            title="Delete check"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
+            ))}
 
-              <div className="p-2 rounded-lg bg-transparent hover:bg-white/40 transition-colors space-y-0.5">
-                <p className="text-xs font-semibold text-[#0F172A] truncate">
-                  Bifrost Failover Pool
-                </p>
-                <p className="text-[11px] text-[#64748B]">Bifrost Gateway · Groq</p>
+          {/* Minimal Benchmark Presets Accordion */}
+          <div className="pt-2 border-t border-[#E0DACF]/70">
+            <button
+              type="button"
+              onClick={() => setIsBenchmarksOpen((prev) => !prev)}
+              className="w-full flex items-center justify-between text-[10px] font-semibold text-[#8E8EA0] px-2 py-1 tracking-wider uppercase cursor-pointer hover:text-slate-900"
+            >
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3 text-[#6366F1]" />
+                <span>Presets</span>
               </div>
-            </div>
-          </div>
+              {isBenchmarksOpen ? (
+                <ChevronDown className="w-3 h-3 text-[#8E8EA0]" />
+              ) : (
+                <ChevronRight className="w-3 h-3 text-[#8E8EA0]" />
+              )}
+            </button>
 
-          {/* Scheduled / Benchmarks Section */}
-          <div className="pt-2 border-t border-[#E0DACF]/70 space-y-1.5">
-            <div className="flex items-center justify-between text-[11px] font-bold text-[#64748B] px-2 uppercase tracking-wider">
-              <span>Benchmarks</span>
-              <span className="text-[10px] font-mono text-[#64748B]">3 LIVE</span>
-            </div>
-
-            <div className="space-y-1 px-1">
-              <div
-                onClick={() => {
-                  onLoadBenchmark && onLoadBenchmark("api-versions");
-                  if (typeof window !== "undefined" && window.innerWidth < 1024) onClose();
-                }}
-                className="flex items-center gap-2 p-2 rounded-lg text-[#475569] hover:text-[#0F172A] hover:bg-white/60 transition-colors cursor-pointer font-medium text-xs"
-              >
-                <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
-                <span className="truncate">Node.js &amp; API Deprecations</span>
+            {isBenchmarksOpen && (
+              <div className="space-y-0.5 pt-1">
+                <div
+                  onClick={() => {
+                    onLoadBenchmark && onLoadBenchmark("api-versions");
+                    if (typeof window !== "undefined" && window.innerWidth < 1024) onClose();
+                  }}
+                  className="flex items-center gap-2 h-7 px-2 rounded-md text-[#475569] hover:text-[#0F172A] hover:bg-[#E5E0D7]/60 transition-colors cursor-pointer text-xs"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#EF4444]" />
+                  <span className="truncate">Node.js &amp; Deprecations</span>
+                </div>
+                <div
+                  onClick={() => {
+                    onLoadBenchmark && onLoadBenchmark("company-leadership");
+                    if (typeof window !== "undefined" && window.innerWidth < 1024) onClose();
+                  }}
+                  className="flex items-center gap-2 h-7 px-2 rounded-md text-[#475569] hover:text-[#0F172A] hover:bg-[#E5E0D7]/60 transition-colors cursor-pointer text-xs"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
+                  <span className="truncate">Leadership &amp; C-Suite</span>
+                </div>
+                <div
+                  onClick={() => {
+                    onLoadBenchmark && onLoadBenchmark("pricing-and-models");
+                    if (typeof window !== "undefined" && window.innerWidth < 1024) onClose();
+                  }}
+                  className="flex items-center gap-2 h-7 px-2 rounded-md text-[#475569] hover:text-[#0F172A] hover:bg-[#E5E0D7]/60 transition-colors cursor-pointer text-xs"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+                  <span className="truncate">Pricing &amp; Model Drift</span>
+                </div>
+                <div
+                  onClick={() => {
+                    onLoadBenchmark && onLoadBenchmark("sebi-regulations");
+                    if (typeof window !== "undefined" && window.innerWidth < 1024) onClose();
+                  }}
+                  className="flex items-center gap-2 h-7 px-2 rounded-md text-[#475569] hover:text-[#0F172A] hover:bg-[#E5E0D7]/60 transition-colors cursor-pointer text-xs"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#6366F1]" />
+                  <span className="truncate">Regulatory &amp; Compliance</span>
+                </div>
               </div>
-              <div
-                onClick={() => {
-                  onLoadBenchmark && onLoadBenchmark("company-leadership");
-                  if (typeof window !== "undefined" && window.innerWidth < 1024) onClose();
-                }}
-                className="flex items-center gap-2 p-2 rounded-lg text-[#475569] hover:text-[#0F172A] hover:bg-white/60 transition-colors cursor-pointer font-medium text-xs"
-              >
-                <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
-                <span className="truncate">Leadership &amp; C-Suite</span>
-              </div>
-              <div
-                onClick={() => {
-                  onLoadBenchmark && onLoadBenchmark("pricing-and-models");
-                  if (typeof window !== "undefined" && window.innerWidth < 1024) onClose();
-                }}
-                className="flex items-center gap-2 p-2 rounded-lg text-[#475569] hover:text-[#0F172A] hover:bg-white/60 transition-colors cursor-pointer font-medium text-xs"
-              >
-                <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-                <span className="truncate">SaaS &amp; Model Pricing Drift</span>
-              </div>
-              <div
-                onClick={() => {
-                  onLoadBenchmark && onLoadBenchmark("sebi-regulations");
-                  if (typeof window !== "undefined" && window.innerWidth < 1024) onClose();
-                }}
-                className="flex items-center gap-2 p-2 rounded-lg text-[#475569] hover:text-[#0F172A] hover:bg-white/60 transition-colors cursor-pointer font-medium text-xs"
-              >
-                <span className="w-2 h-2 rounded-full bg-[#6366F1]" />
-                <span className="truncate">Regulatory &amp; Compliance</span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* Footer Profile Pill */}
-        <div className="pt-3 border-t border-[#E0DACF] space-y-2">
-          <div className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-[#DDD7CD] shadow-2xs">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-full bg-[#6366F1] text-white font-bold flex items-center justify-center text-xs">
+        {/* Footer: User Profile & How It Works */}
+        <div className="pt-2 border-t border-[#E0DACF] space-y-1.5 flex-shrink-0">
+          <div className="flex items-center justify-between p-2 rounded-lg bg-white/70 border border-[#DDD7CD]">
+            <div className="flex items-center gap-2 truncate">
+              <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#6366F1] via-[#7B7CF8] to-[#9CA3FA] text-white font-bold flex items-center justify-center text-[10px] tracking-tight shadow-xs ring-1 ring-white/30 flex-shrink-0">
                 FC
               </div>
-              <div>
-                <p className="font-bold text-xs text-[#0F172A]">FreshCheck Cowork</p>
-                <p className="text-[10px] text-[#64748B] font-medium">Auditor · Member</p>
+              <div className="truncate">
+                <p className="font-semibold text-xs text-[#0F172A] truncate">FreshCheck Cowork</p>
+                <p className="text-[10px] text-[#64748B]">Auditor</p>
               </div>
             </div>
             <button
               type="button"
-              className="p-1.5 rounded-md text-[#64748B] hover:text-[#0F172A] transition-colors cursor-pointer"
+              className="p-1 rounded text-[#64748B] hover:text-[#0F172A] transition-colors cursor-pointer"
             >
               <Settings className="w-3.5 h-3.5" />
             </button>

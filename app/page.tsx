@@ -26,20 +26,123 @@ export default function FreshCheckApp() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [selectedClaim, setSelectedClaim] = useState<DrawerClaimData | null>(null);
   const [checkId, setCheckId] = useState<string | null>(null);
+  const [history, setHistory] = useState<any[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
   // Responsive sidebar visibility state
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
+
+  const fetchHistory = async () => {
+    try {
+      setIsLoadingHistory(true);
+      const res = await fetch("/api/check?limit=30");
+      if (res.ok) {
+        const data = await res.json();
+        setHistory(data.checks || []);
+      }
+    } catch (e) {
+      console.warn("Failed to load check history", e);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       setIsLeftSidebarOpen(window.innerWidth >= 1024);
       setIsRightSidebarOpen(window.innerWidth >= 1280);
     }
+    fetchHistory();
   }, []);
 
   const handleToggleLeftSidebar = () => setIsLeftSidebarOpen((prev) => !prev);
   const handleToggleRightSidebar = () => setIsRightSidebarOpen((prev) => !prev);
+
+  const handleSelectCheck = async (id: string) => {
+    try {
+      setIsChecking(true);
+      setErrorMessage(null);
+      const res = await fetch(`/api/check/${id}`);
+      if (!res.ok) {
+        throw new Error("Could not load past verification report.");
+      }
+      const data = await res.json();
+      setCheckId(data.id);
+      setSubmittedText(data.input_text || "");
+      setText("");
+      setAnswerDate(data.answer_date || "");
+      setOverallScore(data.overall_score ?? null);
+      setFallbackUsed(data.fallback_used ?? false);
+
+      const mappedClaims: DrawerClaimData[] = (data.claims || []).map((c: any, idx: number) => {
+        const score =
+          c.score_breakdown?.finalScore ??
+          c.freshness_score ??
+          (c.verdict === "OUTDATED" ? 20 : c.verdict === "SUPPORTED" ? 90 : c.verdict === "PARTIALLY_SUPPORTED" ? 50 : 45);
+
+        const scoreBreakdown = c.score_breakdown || {
+          baseScore: score,
+          officialSourceBonus: c.evidence?.some((e: any) => e.is_official) ? 15 : 0,
+          multiDomainBonus: 0,
+          stalenessPenalty: c.verdict === "OUTDATED" ? 30 : 0,
+          conflictPenalty: 0,
+          finalScore: score,
+          label: score >= 75 ? "Fresh" : score >= 40 ? "Uncertain" : "Stale",
+        };
+
+        return {
+          id: c.id,
+          idx: c.idx ?? idx,
+          text: c.text,
+          claim_type: c.claim_type,
+          volatility: c.volatility,
+          entity: c.entity,
+          attribute: c.attribute,
+          skipped: c.skipped,
+          verdict: c.verdict || (c.skipped ? "SUPPORTED" : null),
+          current_value: c.current_value,
+          explanation: c.explanation,
+          supporting_urls: c.evidence?.map((e: any) => e.url) || [],
+          scoreBreakdown,
+          evidence: c.evidence || [],
+          start: c.start_offset ?? c.start,
+          end: c.end_offset ?? c.end,
+        };
+      });
+      setClaims(mappedClaims);
+
+      const active = mappedClaims.filter((c) => !c.skipped);
+      setSummaryCounts({
+        fresh: active.filter((c) => (c.scoreBreakdown?.finalScore ?? 0) >= 75).length,
+        uncertain: active.filter(
+          (c) => (c.scoreBreakdown?.finalScore ?? 0) >= 40 && (c.scoreBreakdown?.finalScore ?? 0) < 75
+        ).length,
+        stale: active.filter((c) => (c.scoreBreakdown?.finalScore ?? 0) < 40).length,
+        skipped: mappedClaims.filter((c) => c.skipped).length,
+      });
+
+      setStep("done");
+    } catch (err: any) {
+      console.error("Failed to load historical check:", err);
+      setErrorMessage(err.message || "Failed to load check.");
+      setStep("idle");
+    } finally {
+      setIsChecking(false);
+    }
+  };
+
+  const handleDeleteCheck = async (id: string) => {
+    try {
+      await fetch(`/api/check/${id}`, { method: "DELETE" });
+      setHistory((prev) => prev.filter((item) => item.id !== id));
+      if (checkId === id) {
+        handleNewCheck();
+      }
+    } catch (e) {
+      console.warn("Failed to delete check", e);
+    }
+  };
 
   const handleNewCheck = () => {
     setText("");
@@ -151,7 +254,9 @@ export default function FreshCheckApp() {
           if (!dataStr) continue;
           const parsed = JSON.parse(dataStr);
 
-          if (eventName === "claims_extracted") {
+          if (eventName === "question_answered") {
+            setSubmittedText(parsed.fullDisplay || `Q: ${parsed.question}\n\nAI Answer: ${parsed.answer}`);
+          } else if (eventName === "claims_extracted") {
             setCheckId(parsed.checkId);
             setFallbackUsed(parsed.fallbackUsed || false);
             setStep("searching");
@@ -201,6 +306,7 @@ export default function FreshCheckApp() {
             if (parsed.checkId) {
               setCheckId(parsed.checkId);
             }
+            fetchHistory();
           } else if (eventName === "error") {
             throw new Error(parsed.message || "Pipeline error occurred.");
           }
@@ -225,6 +331,10 @@ export default function FreshCheckApp() {
         isProcessing={isChecking}
         activeTaskId={checkId || undefined}
         onLoadBenchmark={handleLoadBenchmark}
+        history={history}
+        onSelectCheck={handleSelectCheck}
+        onDeleteCheck={handleDeleteCheck}
+        isLoadingHistory={isLoadingHistory}
       />
 
       {/* Center White Rounded Card Workspace */}

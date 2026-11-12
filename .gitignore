@@ -12,6 +12,9 @@
 # misc
 .DS_Store
 *.pem
+/.cache/
+local_db.json
+
 
 # debug
 npm-debug.log*

@@ -9,7 +9,7 @@ interface CodexBlobPetProps {
   overallScore?: number | null;
   staleCount?: number;
   className?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   onSpeech?: (text: string) => void;
   showFloatingSpeech?: boolean;
 }
@@ -105,8 +105,9 @@ export function CodexBlobPet({
   const sizeClasses = {
     sm: "w-9 h-9",
     md: "w-12 h-12 sm:w-14 sm:h-14",
-    lg: "w-16 h-16 sm:w-20 sm:h-20",
-  }[size];
+    lg: "w-[76px] h-[76px] sm:w-[84px] sm:h-[84px]",
+    xl: "w-24 h-24 sm:w-28 sm:h-28",
+  }[size] || "w-[76px] h-[76px] sm:w-[84px] sm:h-[84px]";
 
   return (
     <div className={`relative inline-flex items-center select-none ${className}`}>

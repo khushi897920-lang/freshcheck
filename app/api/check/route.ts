@@ -2,11 +2,44 @@ import { NextRequest, NextResponse } from "next/server";
 import { extractClaims } from "@/lib/extract";
 import { verifyAndJudgeClaim } from "@/lib/judge";
 import { computeOverallScore } from "@/lib/score";
-import { createCheck, updateCheck, insertClaims, insertEvidence } from "@/lib/db";
+import { createCheck, updateCheck, insertClaims, insertEvidence, listChecks, updateClaim } from "@/lib/db";
+import { executeBifrostCompletion } from "@/lib/bifrost";
 import { Volatility } from "@/lib/schemas";
 
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
+
+function isQuestionOrQuery(input: string): boolean {
+  const trimmed = input.trim();
+  if (trimmed.endsWith("?")) return true;
+  const lower = trimmed.toLowerCase();
+  const interrogatives = [
+    "who is", "who was", "who are",
+    "what is", "what was", "what are",
+    "is ", "are ", "was ", "were ",
+    "when was", "when is", "when did",
+    "where is", "where was",
+    "which is", "which are",
+    "how much", "how many",
+    "why is", "why did",
+    "does ", "did ", "can ", "could "
+  ];
+  return interrogatives.some((prefix) => lower.startsWith(prefix));
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const limit = parseInt(searchParams.get("limit") || "30", 10);
+    const checks = await listChecks(limit);
+    return NextResponse.json({ checks });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error?.message || "Failed to fetch check history" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,10 +71,41 @@ export async function POST(req: NextRequest) {
         };
 
         try {
+          let targetText = text;
+          let generatedAnswer: string | null = null;
+
+          // If the user entered a question, generate an answer via Bifrost first
+          if (isQuestionOrQuery(text)) {
+            sendEvent("answering_question", { question: text });
+            try {
+              const answerResult = await executeBifrostCompletion({
+                messages: [
+                  {
+                    role: "system",
+                    content:
+                      "You are a factual, concise AI assistant. Answer the user's question directly and accurately in 1-2 sentences. Avoid speculation.",
+                  },
+                  { role: "user", content: text },
+                ],
+                temperature: 0,
+              });
+              generatedAnswer = answerResult.rawText.trim();
+              targetText = generatedAnswer;
+
+              sendEvent("question_answered", {
+                question: text,
+                answer: generatedAnswer,
+                fullDisplay: `Q: ${text}\n\nAI Answer: ${generatedAnswer}`,
+              });
+            } catch (err) {
+              console.warn("[API Check] Bifrost question answering failed, verifying text directly:", err);
+            }
+          }
+
           // 1. Create initial check in database
           const initialCheck = await createCheck({
             session_id: sessionId || null,
-            input_text: text,
+            input_text: generatedAnswer ? `Q: ${text}\n\nAI Answer: ${generatedAnswer}` : text,
             answer_date: answerDate || null,
             status: "processing",
             overall_score: null,
@@ -51,7 +115,29 @@ export async function POST(req: NextRequest) {
           });
 
           // 2. Extract claims via Bifrost
-          const extraction = await extractClaims(text, answerDate, 8);
+          const extraction = await extractClaims(targetText, answerDate, 8);
+
+          if (extraction.claims.length === 0) {
+            // Save final check status
+            await updateCheck(initialCheck.id, {
+              status: "done",
+              overall_score: 100,
+              tavily_credits_used: 0,
+            });
+
+            sendEvent("done", {
+              checkId: initialCheck.id,
+              overallScore: 100,
+              summaryCounts: { fresh: 0, uncertain: 0, stale: 0, skipped: 0 },
+              message: "No time-sensitive claims were detected.",
+              modelUsed: extraction.modelUsed,
+              fallbackUsed: extraction.fallbackUsed,
+              tavilyCreditsUsed: 0,
+            });
+
+            controller.close();
+            return;
+          }
 
           // Save extracted claims to DB
           const savedClaims = await insertClaims(
@@ -127,6 +213,16 @@ export async function POST(req: NextRequest) {
                 }))
               );
             }
+
+            // Save judged verdicts, scores, and explanations to the claim in DB
+            await updateClaim(item.dbId, {
+              verdict: item.claim.skipped ? "SUPPORTED" : judged.verdict,
+              current_value: judged.current_value,
+              explanation: judged.explanation,
+              freshness_score: judged.scoreBreakdown.finalScore,
+              score_breakdown: judged.scoreBreakdown,
+              checked_at: new Date().toISOString(),
+            });
 
             verifiedResults.push({
               score: judged.scoreBreakdown.finalScore,

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { createCheck, insertClaims, insertEvidence, getCheckById } from "../lib/db";
+import { createCheck, insertClaims, insertEvidence, getCheckById, listChecks, deleteCheck } from "../lib/db";
 
 describe("Phase 3 — Database & Persistence Layer", () => {
   it("creates a check, inserts claims and evidence, and retrieves full nested hierarchy", async () => {
@@ -59,6 +59,24 @@ describe("Phase 3 — Database & Persistence Layer", () => {
     expect(retrieved?.claims?.length).toBe(1);
     expect(retrieved?.claims?.[0].evidence?.length).toBe(1);
     expect(retrieved?.claims?.[0].evidence?.[0].url).toBe("https://www.python.org/downloads/");
+  });
+
+  it("lists recent checks and deletes a check cleanly", async () => {
+    const check = await createCheck({
+      input_text: "Temporary history check item",
+      status: "done",
+      overall_score: 85,
+    });
+
+    const list = await listChecks(10);
+    expect(list.length).toBeGreaterThan(0);
+    const found = list.find((c) => c.id === check.id);
+    expect(found).toBeDefined();
+    expect(found?.input_text).toBe("Temporary history check item");
+
+    await deleteCheck(check.id);
+    const afterDelete = await getCheckById(check.id);
+    expect(afterDelete).toBeNull();
   });
 });
 

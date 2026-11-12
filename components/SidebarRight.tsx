@@ -61,7 +61,7 @@ export function SidebarRight({
         aria-hidden="true"
       />
 
-      <aside className="fixed xl:static inset-y-0 right-0 z-50 w-80 max-w-[88vw] flex-shrink-0 bg-[#F8FAFD] border-l border-[#E2E8F0] flex flex-col justify-between select-none text-[#2D3139] text-xs font-sans overflow-y-auto shadow-2xl xl:shadow-none transition-transform duration-200 ease-in-out">
+      <aside className="fixed xl:static inset-y-0 right-0 z-50 w-80 max-w-[88vw] flex-shrink-0 bg-[#F8FAFD] border-l border-[#E2E8F0] flex flex-col justify-between select-none text-[#2D3139] text-xs font-sans overflow-y-auto scrollbar-none shadow-2xl xl:shadow-none transition-transform duration-200 ease-in-out">
         <div className="p-4 space-y-4">
           {/* Top Tab Bar & Close Button */}
           <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-2.5 text-xs font-medium text-[#64748B]">
