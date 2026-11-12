@@ -147,7 +147,7 @@ export function CenterWorkspace({
   const allClaimsSkipped = claims.length > 0 && activeClaims.length === 0;
 
   return (
-    <main className="flex-1 bg-white rounded-2xl shadow-window m-1.5 sm:m-2.5 flex flex-col justify-between overflow-hidden border border-[#E2E8F0] relative font-sans min-w-0">
+    <main className="flex-1 bg-white rounded-2xl shadow-window m-1.5 sm:m-2.5 flex flex-col justify-between overflow-hidden border border-[#E2E8F0] relative font-sans min-w-0 max-w-full h-[calc(100dvh-12px)] sm:h-[calc(100dvh-20px)]">
       {/* Top Header Bar with Sidebar Toggle Buttons */}
       <header className="h-14 border-b border-[#E2E8F0] px-3 sm:px-6 flex items-center justify-between text-xs text-[#475569] flex-shrink-0 bg-white gap-2">
         {/* Left Controls: Toggle Sidebar Button + Title */}
@@ -223,7 +223,7 @@ export function CenterWorkspace({
       </header>
 
       {/* Main Scrollable Canvas */}
-      <div className="flex-1 overflow-y-auto scrollbar-none p-4 sm:p-6 md:p-8 space-y-6 md:space-y-8 flex flex-col justify-start">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-none p-3 sm:p-5 md:p-7 space-y-6 flex flex-col justify-start min-w-0">
         {/* Welcome Hero (Shown when idle) */}
         {claims.length === 0 && !isChecking && !submittedText && (
           <div className="text-center my-auto pt-6 pb-2 space-y-3 select-none">
@@ -414,13 +414,13 @@ export function CenterWorkspace({
             </div>
 
             {/* Compact Glowing Border Input Pill */}
-            <div className="flex-1 p-[1.5px] rounded-2xl bg-gradient-to-r from-[#67E8F9]/40 via-[#A5B4FC]/40 to-[#DDD6FE]/60 shadow-xs">
-              <div className="bg-white rounded-[14.5px] px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-2 border border-slate-200">
+            <div className="flex-1 min-w-0 p-[1.5px] rounded-2xl bg-gradient-to-r from-[#67E8F9]/40 via-[#A5B4FC]/40 to-[#DDD6FE]/60 shadow-xs">
+              <div className="bg-white rounded-[14.5px] px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-2 border border-slate-200 min-w-0">
                 {/* Presets & Benchmark Drawer Button */}
                 <button
                   type="button"
                   onClick={() => setUserExpanded(true)}
-                  className="px-2 py-1 rounded-lg bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 text-slate-600 hover:text-indigo-700 transition-colors flex items-center gap-1.5 text-xs font-bold cursor-pointer"
+                  className="px-2 py-1 rounded-lg bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 text-slate-600 hover:text-indigo-700 transition-colors flex items-center gap-1.5 text-xs font-bold cursor-pointer flex-shrink-0"
                   title="Expand benchmark presets"
                 >
                   <SlidersHorizontal className="w-3.5 h-3.5 text-indigo-600" />
@@ -442,7 +442,7 @@ export function CenterWorkspace({
                   onBlur={() => setIsTyping(false)}
                   disabled={isChecking}
                   placeholder="Ask a question or paste another answer to audit (Enter to verify)..."
-                  className="flex-1 text-sm sm:text-base text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none resize-none bg-transparent font-sans py-1 leading-normal overflow-y-auto scrollbar-none"
+                  className="flex-1 min-w-0 text-sm sm:text-base text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none resize-none bg-transparent font-sans py-1 leading-normal overflow-y-auto scrollbar-none"
                   style={{ minHeight: "28px", maxHeight: "140px" }}
                 />
 
@@ -590,8 +590,8 @@ export function CenterWorkspace({
               )}
 
               {/* Bottom Toolbar with 4 FreshCheck Prototype Pills and Squircle Send Button */}
-              <div className="flex items-center justify-between pt-2.5 border-t border-[#F1F5F9] gap-2">
-                <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-0.5 scrollbar-none flex-1">
+              <div className="flex items-center justify-between pt-2.5 border-t border-[#F1F5F9] gap-2 min-w-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-0.5 scrollbar-none flex-1 min-w-0">
                   {/* 1. API & Library Deprecations (Pink) */}
                   <button
                     type="button"

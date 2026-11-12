@@ -55,7 +55,8 @@ export default function FreshCheckApp() {
     let sid = "";
     if (typeof window !== "undefined") {
       setIsLeftSidebarOpen(window.innerWidth >= 1024);
-      setIsRightSidebarOpen(window.innerWidth >= 1280);
+      // Keep right sidebar closed on laptops/tablets by default so workspace remains spacious and rock solid
+      setIsRightSidebarOpen(window.innerWidth >= 1536);
       sid = localStorage.getItem("freshcheck_session_id") || "";
       if (!sid) {
         sid = "user_" + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
@@ -333,7 +334,7 @@ export default function FreshCheckApp() {
   };
 
   return (
-    <div className="h-[100dvh] w-screen flex flex-row overflow-hidden bg-gradient-to-br from-[#DCE6F5] via-[#E7EDF9] to-[#E3EAF7]">
+    <div className="fixed inset-0 h-[100dvh] w-full max-w-[100vw] flex flex-row overflow-hidden bg-gradient-to-br from-[#DCE6F5] via-[#E7EDF9] to-[#E3EAF7] select-none">
       {/* Left Sidebar (Warm Oat/Sand #EFECE6) */}
       <SidebarLeft
         isOpen={isLeftSidebarOpen}
