@@ -28,15 +28,18 @@ export default function FreshCheckApp() {
   const [checkId, setCheckId] = useState<string | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [sessionId, setSessionId] = useState<string>("");
 
   // Responsive sidebar visibility state
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
 
-  const fetchHistory = async () => {
+  const fetchHistory = async (activeSessionId?: string) => {
+    const sid = activeSessionId || sessionId;
     try {
       setIsLoadingHistory(true);
-      const res = await fetch("/api/check?limit=30");
+      const url = sid ? `/api/check?limit=30&sessionId=${encodeURIComponent(sid)}` : "/api/check?limit=30";
+      const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         setHistory(data.checks || []);
@@ -49,11 +52,18 @@ export default function FreshCheckApp() {
   };
 
   useEffect(() => {
+    let sid = "";
     if (typeof window !== "undefined") {
       setIsLeftSidebarOpen(window.innerWidth >= 1024);
       setIsRightSidebarOpen(window.innerWidth >= 1280);
+      sid = localStorage.getItem("freshcheck_session_id") || "";
+      if (!sid) {
+        sid = "user_" + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+        localStorage.setItem("freshcheck_session_id", sid);
+      }
+      setSessionId(sid);
     }
-    fetchHistory();
+    fetchHistory(sid);
   }, []);
 
   const handleToggleLeftSidebar = () => setIsLeftSidebarOpen((prev) => !prev);
@@ -214,6 +224,7 @@ export default function FreshCheckApp() {
         body: JSON.stringify({
           text: textToSubmit,
           answerDate: answerDate || null,
+          sessionId: sessionId || undefined,
         }),
       });
 
@@ -306,7 +317,7 @@ export default function FreshCheckApp() {
             if (parsed.checkId) {
               setCheckId(parsed.checkId);
             }
-            fetchHistory();
+            fetchHistory(sessionId);
           } else if (eventName === "error") {
             throw new Error(parsed.message || "Pipeline error occurred.");
           }

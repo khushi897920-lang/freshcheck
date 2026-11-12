@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { X, ExternalLink, ShieldCheck, Calendar, Globe } from "lucide-react";
 import { ScoreBadge } from "./ScoreBadge";
+import { cleanSnippetText } from "@/lib/tavily";
 
 export interface DrawerClaimData {
   id: string;
@@ -215,7 +216,7 @@ export function EvidenceDrawer({ claim, isOpen, onClose }: EvidenceDrawerProps) 
                       </a>
 
                       <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal bg-white p-2.5 rounded-lg border border-slate-200">
-                        {item.snippet}
+                        {cleanSnippetText(item.snippet)}
                       </p>
                     </div>
                   ))}

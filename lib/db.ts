@@ -292,14 +292,20 @@ export async function getCheckById(id: string): Promise<CheckRecord | null> {
   };
 }
 
-export async function listChecks(limit: number = 30): Promise<CheckRecord[]> {
+export async function listChecks(limit: number = 30, sessionId?: string | null): Promise<CheckRecord[]> {
   const supabase = getSupabaseClient();
   if (supabase) {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from("checks")
         .select("id, session_id, input_text, answer_date, status, overall_score, model_used, created_at")
-        .eq("status", "done")
+        .eq("status", "done");
+
+      if (sessionId) {
+        query = query.eq("session_id", sessionId);
+      }
+
+      const { data, error } = await query
         .order("created_at", { ascending: false })
         .limit(limit);
       if (!error && data) return data as CheckRecord[];
@@ -310,9 +316,12 @@ export async function listChecks(limit: number = 30): Promise<CheckRecord[]> {
 
   ensureDbLoaded();
   // Filter for completed checks with valid text
-  const allChecks = Array.from(memoryChecks.values()).filter(
+  let allChecks = Array.from(memoryChecks.values()).filter(
     (c) => c.status === "done" && c.input_text && c.input_text.trim().length > 0
   );
+  if (sessionId) {
+    allChecks = allChecks.filter((c) => c.session_id === sessionId);
+  }
   // Sort descending by created_at
   allChecks.sort((a, b) => {
     const da = a.created_at ? new Date(a.created_at).getTime() : 0;

@@ -31,7 +31,8 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const limit = parseInt(searchParams.get("limit") || "30", 10);
-    const checks = await listChecks(limit);
+    const sessionId = searchParams.get("sessionId");
+    const checks = await listChecks(limit, sessionId);
     return NextResponse.json({ checks });
   } catch (error: any) {
     return NextResponse.json(

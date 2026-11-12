@@ -25,6 +25,24 @@ const inMemorySearchCache = new Map<
 >();
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
+export function cleanSnippetText(raw: string): string {
+  if (!raw) return "";
+  return raw
+    // Remove markdown headers: #, ##, ###, ####, etc.
+    .replace(/#{1,6}\s*/g, "")
+    // Remove markdown bold / italic markers
+    .replace(/(\*\*|__)(.*?)\1/g, "$2")
+    .replace(/(\*|_)(.*?)\1/g, "$2")
+    // Replace markdown links [text](url) with just text
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    // Clean repetitive ellipses
+    .replace(/\[\.\.\.\]/g, " ... ")
+    // Replace multiple newlines or noisy multiple spaces with clean single spacing
+    .replace(/[\r\n\t]+/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 function extractDomain(url: string): string {
   try {
     return new URL(url).hostname.replace(/^www\./, "");
@@ -93,7 +111,7 @@ export async function searchTavily(
           title: res.title || "Web Result",
           domain,
           published_date: res.publishedDate || null,
-          snippet: res.content || "",
+          snippet: cleanSnippetText(res.content || ""),
           is_official: checkIfOfficial(domain, entityContext),
           rank: idx + 1,
         };
