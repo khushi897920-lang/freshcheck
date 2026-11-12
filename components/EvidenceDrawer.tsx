@@ -87,17 +87,17 @@ export function EvidenceDrawer({ claim, isOpen, onClose }: EvidenceDrawerProps) 
             </div>
 
             {/* Claim Statement */}
-            <div className="p-4 rounded-xl bg-[#F8FAFD] border border-[#E2E8F0]">
-              <p className="text-[11px] text-[#64748B] mb-1 font-mono uppercase">Asserted Claim:</p>
-              <p className="text-xs sm:text-sm font-medium text-[#1E232B] leading-relaxed">
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-2xs">
+              <p className="text-xs text-slate-500 mb-1.5 font-mono uppercase font-bold tracking-wider">Asserted Claim:</p>
+              <p className="text-base sm:text-lg font-extrabold text-slate-900 leading-snug">
                 "{claim.text}"
               </p>
             </div>
 
             {/* Verdict & Current Value */}
-            <div className="p-4 rounded-xl bg-[#F8FAFD] border border-[#E2E8F0] space-y-3">
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-[#64748B] font-medium">Live Verdict</span>
+                <span className="text-sm text-slate-700 font-bold">Live Verdict:</span>
                 <ScoreBadge
                   score={claim.scoreBreakdown?.finalScore}
                   verdict={claim.verdict}
@@ -107,18 +107,18 @@ export function EvidenceDrawer({ claim, isOpen, onClose }: EvidenceDrawerProps) 
               </div>
 
               {claim.current_value && (
-                <div className="pt-2 border-t border-[#E2E8F0]">
-                  <p className="text-[11px] text-[#64748B] mb-1">Current Verified Value</p>
-                  <p className="text-xs sm:text-sm font-semibold font-mono text-[#059669]">
+                <div className="pt-2.5 border-t border-slate-200">
+                  <p className="text-xs text-slate-600 font-bold uppercase tracking-wider mb-1">Current Truth Value:</p>
+                  <p className="text-sm sm:text-base font-bold font-mono text-emerald-900 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-300">
                     {claim.current_value}
                   </p>
                 </div>
               )}
 
               {claim.explanation && (
-                <div className="pt-2 border-t border-[#E2E8F0]">
-                  <p className="text-[11px] text-[#64748B] mb-1">Audit Explanation</p>
-                  <p className="text-xs text-[#1E232B] leading-relaxed">
+                <div className="pt-2.5 border-t border-slate-200">
+                  <p className="text-xs text-slate-600 font-bold uppercase tracking-wider mb-1">Audit Explanation:</p>
+                  <p className="text-sm text-slate-800 leading-relaxed font-medium bg-slate-50 p-3 rounded-xl border border-slate-200">
                     {claim.explanation}
                   </p>
                 </div>
@@ -127,38 +127,38 @@ export function EvidenceDrawer({ claim, isOpen, onClose }: EvidenceDrawerProps) 
 
             {/* Score Breakdown (Deterministic TRD Formula) */}
             {claim.scoreBreakdown && (
-              <div className="p-4 rounded-xl bg-[#F8FAFD] border border-[#E2E8F0] space-y-2">
-                <div className="flex items-center justify-between text-xs font-semibold text-[#1E232B]">
+              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2.5">
+                <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-slate-900">
                   <span>Freshness Score Calculation</span>
-                  <span className="font-mono text-[#6366F1]">
+                  <span className="font-mono text-indigo-700 font-extrabold text-sm sm:text-base">
                     {claim.scoreBreakdown.finalScore} / 100
                   </span>
                 </div>
-                <div className="text-[11px] font-mono space-y-1.5 text-[#64748B] pt-1">
-                  <div className="flex justify-between">
+                <div className="text-xs font-mono space-y-1.5 text-slate-600 pt-1">
+                  <div className="flex justify-between font-semibold">
                     <span>Base Score ({claim.verdict})</span>
-                    <span className="text-[#1E232B] font-semibold">{claim.scoreBreakdown.baseScore}</span>
+                    <span className="text-slate-900">{claim.scoreBreakdown.baseScore}</span>
                   </div>
                   {claim.scoreBreakdown.officialSourceBonus > 0 && (
-                    <div className="flex justify-between text-[#059669]">
+                    <div className="flex justify-between text-emerald-800 font-semibold">
                       <span>+ Official source bonus</span>
                       <span>+{claim.scoreBreakdown.officialSourceBonus}</span>
                     </div>
                   )}
                   {claim.scoreBreakdown.multiDomainBonus > 0 && (
-                    <div className="flex justify-between text-[#059669]">
+                    <div className="flex justify-between text-emerald-800 font-semibold">
                       <span>+ Multi-domain consensus</span>
                       <span>+{claim.scoreBreakdown.multiDomainBonus}</span>
                     </div>
                   )}
                   {claim.scoreBreakdown.stalenessPenalty > 0 && (
-                    <div className="flex justify-between text-[#DC2626]">
+                    <div className="flex justify-between text-rose-800 font-semibold">
                       <span>- Evidence older than 12m</span>
                       <span>-{claim.scoreBreakdown.stalenessPenalty}</span>
                     </div>
                   )}
                   {claim.scoreBreakdown.conflictPenalty > 0 && (
-                    <div className="flex justify-between text-[#DC2626]">
+                    <div className="flex justify-between text-rose-800 font-semibold">
                       <span>- Sources conflict</span>
                       <span>-{claim.scoreBreakdown.conflictPenalty}</span>
                     </div>
@@ -208,13 +208,13 @@ export function EvidenceDrawer({ claim, isOpen, onClose }: EvidenceDrawerProps) 
                         href={item.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs font-medium text-[#1E232B] hover:text-[#6366F1] flex items-center gap-1 group line-clamp-1"
+                        className="text-xs sm:text-sm font-bold text-slate-900 hover:text-indigo-600 flex items-center gap-1.5 group"
                       >
-                        <span>{item.title}</span>
-                        <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100 flex-shrink-0" />
+                        <span className="line-clamp-2">{item.title}</span>
+                        <ExternalLink className="w-3.5 h-3.5 text-indigo-500 opacity-80 group-hover:opacity-100 flex-shrink-0" />
                       </a>
 
-                      <p className="text-[11px] text-[#64748B] line-clamp-2 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal bg-white p-2.5 rounded-lg border border-slate-200">
                         {item.snippet}
                       </p>
                     </div>

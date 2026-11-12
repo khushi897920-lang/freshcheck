@@ -213,44 +213,44 @@ export function CenterWorkspace({
           <div className="space-y-6 max-w-4xl mx-auto w-full">
             {/* Score Summary Card */}
             {overallScore !== null && summaryCounts && (
-              <div className="p-4 sm:p-6 rounded-2xl bg-[#F8FAFD] border border-[#E2E8F0] flex flex-col sm:flex-row items-center justify-between gap-5 shadow-xs">
+              <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-slate-50 to-indigo-50/30 border border-[#CBD5E1] flex flex-col sm:flex-row items-center justify-between gap-5 shadow-sm">
                 <div className="flex items-center gap-4 sm:gap-5 w-full sm:w-auto">
-                  <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-white border-2 border-[#E2E8F0] shadow-xs flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl sm:text-2xl font-bold font-mono text-[#0F172A]">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border-2 border-indigo-200 shadow-sm flex items-center justify-center flex-shrink-0">
+                    <span className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-900">
                       {overallScore}
                     </span>
                   </div>
                   <div>
-                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <h3 className="font-bold text-sm sm:text-base text-[#0F172A]">
+                    <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
+                      <h3 className="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight">
                         Freshness Score
                       </h3>
                       <ScoreBadge score={overallScore} size="md" />
                     </div>
-                    <p className="text-xs text-[#475569] leading-relaxed">
+                    <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
                       Calibrated score calculated from claim recency, official sources, and domain consensus.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 self-stretch sm:self-auto justify-between sm:justify-end">
-                  <div className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-white border border-[#E2E8F0] text-center flex-1 sm:flex-initial min-w-[65px]">
-                    <span className="text-xs sm:text-sm font-bold text-[#059669] font-mono block">
+                <div className="flex items-center gap-2.5 self-stretch sm:self-auto justify-between sm:justify-end">
+                  <div className="px-3.5 py-2 rounded-xl bg-white border border-emerald-200 text-center flex-1 sm:flex-initial min-w-[70px] shadow-2xs">
+                    <span className="text-sm sm:text-base font-extrabold text-emerald-700 font-mono block">
                       {summaryCounts.fresh}
                     </span>
-                    <span className="text-[10px] text-[#64748B] font-medium">Fresh</span>
+                    <span className="text-xs text-emerald-900 font-bold uppercase tracking-wider">Fresh</span>
                   </div>
-                  <div className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-white border border-[#E2E8F0] text-center flex-1 sm:flex-initial min-w-[65px]">
-                    <span className="text-xs sm:text-sm font-bold text-[#D97706] font-mono block">
+                  <div className="px-3.5 py-2 rounded-xl bg-white border border-amber-200 text-center flex-1 sm:flex-initial min-w-[70px] shadow-2xs">
+                    <span className="text-sm sm:text-base font-extrabold text-amber-700 font-mono block">
                       {summaryCounts.uncertain}
                     </span>
-                    <span className="text-[10px] text-[#64748B] font-medium">Uncertain</span>
+                    <span className="text-xs text-amber-900 font-bold uppercase tracking-wider">Uncertain</span>
                   </div>
-                  <div className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-white border border-[#E2E8F0] text-center flex-1 sm:flex-initial min-w-[65px]">
-                    <span className="text-xs sm:text-sm font-bold text-[#DC2626] font-mono block">
+                  <div className="px-3.5 py-2 rounded-xl bg-white border border-rose-200 text-center flex-1 sm:flex-initial min-w-[70px] shadow-2xs">
+                    <span className="text-sm sm:text-base font-extrabold text-rose-700 font-mono block">
                       {summaryCounts.stale}
                     </span>
-                    <span className="text-[10px] text-[#64748B] font-medium">Stale</span>
+                    <span className="text-xs text-rose-900 font-bold uppercase tracking-wider">Stale</span>
                   </div>
                 </div>
               </div>
@@ -261,13 +261,13 @@ export function CenterWorkspace({
               <button
                 type="button"
                 onClick={onToggleRightSidebar}
-                className="w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-indigo-50/90 to-blue-50/90 border border-indigo-200/80 text-[#4F46E5] text-xs font-semibold flex items-center justify-between cursor-pointer hover:bg-indigo-100/80 transition-colors shadow-2xs"
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 text-[#4F46E5] text-xs sm:text-sm font-bold flex items-center justify-between cursor-pointer hover:bg-indigo-100 transition-colors shadow-2xs"
               >
                 <span className="flex items-center gap-2">
                   <PanelRight className="w-4 h-4 text-[#6366F1]" />
                   <span>View Full Report &amp; Evidence ({claims.length} claims)</span>
                 </span>
-                <span className="font-bold">Open Report →</span>
+                <span className="font-extrabold">Open Report →</span>
               </button>
             </div>
 
@@ -279,26 +279,26 @@ export function CenterWorkspace({
             )}
 
             {/* Annotated Answer Highlights */}
-            <div className="space-y-2.5">
+            <div className="space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <h4 className="text-xs sm:text-sm font-semibold text-[#0F172A] flex items-center gap-2">
+                <h4 className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-[#6366F1]" />
                   Annotated Answer (Click any claim to inspect live sources)
                 </h4>
                 <button
                   type="button"
                   onClick={handleToggleCorrected}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#4F46E5] hover:text-[#4338CA] bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg transition-colors cursor-pointer self-start sm:self-auto"
+                  className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3.5 py-1.5 rounded-xl transition-colors cursor-pointer self-start sm:self-auto shadow-2xs"
                 >
-                  <Wand2 className="w-3.5 h-3.5" />
+                  <Wand2 className="w-3.5 h-3.5 text-indigo-600" />
                   <span>{showCorrected ? "Show Original" : "Auto-Correct Stale Claims"}</span>
                 </button>
               </div>
 
               {showCorrected && correctedResult ? (
-                <div className="p-4 sm:p-5 rounded-xl bg-indigo-50/60 border border-indigo-200 text-xs sm:text-sm text-[#0F172A] leading-relaxed whitespace-pre-wrap font-sans">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-[#4F46E5] mb-2 font-mono">
-                    <Check className="w-4 h-4" /> Corrected Answer with Sources Cited:
+                <div className="p-5 sm:p-6 rounded-2xl bg-indigo-50/80 border border-indigo-200 text-sm sm:text-base text-slate-900 leading-relaxed whitespace-pre-wrap font-sans shadow-2xs">
+                  <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-indigo-800 mb-2.5 font-mono">
+                    <Check className="w-4 h-4 text-indigo-600 stroke-[2.5]" /> Corrected Answer with Sources Cited:
                   </div>
                   {correctedResult.correctedText}
                 </div>
@@ -313,12 +313,12 @@ export function CenterWorkspace({
             </div>
 
             {/* Claim Cards Grid */}
-            <div className="space-y-3">
-              <h4 className="text-xs sm:text-sm font-semibold text-[#0F172A] flex items-center gap-2">
+            <div className="space-y-3 pt-2">
+              <h4 className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
                 <Layers className="w-4 h-4 text-[#6366F1]" />
                 Extracted Claims &amp; Live Status ({claims.length})
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-3.5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 {claims.map((claim) => (
                   <ClaimCard
                     key={claim.id}
@@ -413,7 +413,7 @@ export function CenterWorkspace({
               onBlur={() => setIsTyping(false)}
               disabled={isChecking}
               placeholder="Paste any AI-generated response to audit for expired facts, deprecated APIs, or outdated pricing..."
-              className="w-full text-xs sm:text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none resize-none leading-relaxed bg-transparent font-sans min-h-[64px] sm:min-h-[72px]"
+              className="w-full text-sm sm:text-base text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none resize-none leading-relaxed bg-transparent font-sans min-h-[72px] sm:min-h-[82px]"
             />
 
             {/* Error Message if any */}

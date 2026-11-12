@@ -88,8 +88,8 @@ export async function POST(req: NextRequest) {
             fallbackUsed: extraction.fallbackUsed,
           });
 
-          // 3. Verify kept claims with concurrency limit (4)
-          const concurrencyLimit = 4;
+          // 3. Verify kept claims with concurrency limit (2) to respect provider token limits
+          const concurrencyLimit = 2;
           const claimsToVerify = extraction.claims.map((claim, idx) => ({
             claim,
             dbId: savedClaims[idx]?.id || claim.id,
@@ -147,12 +147,15 @@ export async function POST(req: NextRequest) {
               evidence: judged.evidence,
               skipped: item.claim.skipped,
             });
-          }
+          };
 
           // Execute with concurrency batching
           for (let i = 0; i < claimsToVerify.length; i += concurrencyLimit) {
             const batch = claimsToVerify.slice(i, i + concurrencyLimit);
             await Promise.all(batch.map((item) => processClaimItem(item)));
+            if (i + concurrencyLimit < claimsToVerify.length) {
+              await new Promise((resolve) => setTimeout(resolve, 350));
+            }
           }
 
           // 4. Compute overall answer score and summary counts

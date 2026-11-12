@@ -17,8 +17,8 @@ export function ScoreBadge({
 }: ScoreBadgeProps) {
   if (skipped) {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono bg-slate-100 border border-slate-200 text-slate-500">
-        <Minus className="w-3 h-3" />
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-semibold bg-slate-100 border border-slate-300 text-slate-700">
+        <Minus className="w-3.5 h-3.5" />
         <span>Skipped</span>
       </span>
     );
@@ -37,18 +37,18 @@ export function ScoreBadge({
   }
 
   const sizeClasses = {
-    sm: "px-2 py-0.5 text-[10px]",
-    md: "px-2.5 py-0.5 text-xs",
-    lg: "px-3 py-1 text-xs font-semibold",
+    sm: "px-2.5 py-0.5 text-xs font-semibold tracking-wide",
+    md: "px-3 py-1 text-xs font-bold tracking-wide",
+    lg: "px-3.5 py-1.5 text-sm font-bold tracking-wide",
   };
 
   if (status === "Fresh") {
     return (
       <span
-        className={`inline-flex items-center gap-1 rounded-full font-mono font-medium bg-emerald-50 border border-emerald-200 text-emerald-700 ${sizeClasses[size]}`}
+        className={`inline-flex items-center gap-1.5 rounded-full font-mono bg-emerald-100 border border-emerald-300 text-emerald-900 shadow-2xs ${sizeClasses[size]}`}
       >
-        <Check className="w-3 h-3 text-emerald-600" />
-        {typeof score === "number" && <span>{score}</span>}
+        <Check className="w-3.5 h-3.5 text-emerald-700 stroke-[2.5]" />
+        {typeof score === "number" && <span className="font-bold">{score}</span>}
         <span>Fresh</span>
       </span>
     );
@@ -57,10 +57,10 @@ export function ScoreBadge({
   if (status === "Stale") {
     return (
       <span
-        className={`inline-flex items-center gap-1 rounded-full font-mono font-medium bg-rose-50 border border-rose-200 text-rose-700 ${sizeClasses[size]}`}
+        className={`inline-flex items-center gap-1.5 rounded-full font-mono bg-rose-100 border border-rose-300 text-rose-900 shadow-2xs ${sizeClasses[size]}`}
       >
-        <X className="w-3 h-3 text-rose-600" />
-        {typeof score === "number" && <span>{score}</span>}
+        <X className="w-3.5 h-3.5 text-rose-700 stroke-[2.5]" />
+        {typeof score === "number" && <span className="font-bold">{score}</span>}
         <span>Stale</span>
       </span>
     );
@@ -68,10 +68,10 @@ export function ScoreBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full font-mono font-medium bg-amber-50 border border-amber-200 text-amber-700 ${sizeClasses[size]}`}
+      className={`inline-flex items-center gap-1.5 rounded-full font-mono bg-amber-100 border border-amber-300 text-amber-950 shadow-2xs ${sizeClasses[size]}`}
     >
-      <AlertTriangle className="w-3 h-3 text-amber-600" />
-      {typeof score === "number" && <span>{score}</span>}
+      <AlertTriangle className="w-3.5 h-3.5 text-amber-700 stroke-[2.5]" />
+      {typeof score === "number" && <span className="font-bold">{score}</span>}
       <span>Uncertain</span>
     </span>
   );
