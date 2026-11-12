@@ -21,11 +21,14 @@ const MODEL_PRIMARY = process.env.MODEL_PRIMARY || "gemini-1.5-flash";
 const MODEL_FALLBACK = process.env.MODEL_FALLBACK || "llama-3.1-8b-instant";
 
 // Create OpenAI client pointed at Bifrost
-export function getBifrostClient(timeoutMs = 4000): OpenAI {
+export function getBifrostClient(timeoutMs = 12000): OpenAI {
   return new OpenAI({
     baseURL: BIFROST_BASE_URL,
     apiKey: BIFROST_API_KEY,
     timeout: timeoutMs,
+    defaultHeaders: {
+      "x-bf-vk": BIFROST_API_KEY,
+    },
     maxRetries: 0, // We control failover directly between primary and fallback
   });
 }
@@ -37,7 +40,7 @@ export async function executeBifrostCompletion<T = string>(
   options: BifrostCompletionOptions,
   schema?: ZodSchema<T>
 ): Promise<BifrostCompletionResult<T>> {
-  const client = getBifrostClient(options.timeoutMs ?? 2500);
+  const client = getBifrostClient(options.timeoutMs ?? 12000);
 
   // Helper to attempt completion with a given model
   const callModel = async (model: string): Promise<string> => {
