@@ -22,6 +22,9 @@ import {
   BarChart2,
   FileEdit,
   SlidersHorizontal,
+  Minimize2,
+  Maximize2,
+  RotateCw,
 } from "lucide-react";
 import { ProgressSteps, PipelineStep } from "./ProgressSteps";
 import { AnnotatedAnswer } from "./AnnotatedAnswer";
@@ -85,6 +88,10 @@ export function CenterWorkspace({
   const [correctedResult, setCorrectedResult] = useState<CorrectedAnswerResult | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [petSpeechQuote, setPetSpeechQuote] = useState<string | null>(null);
+  const [userExpanded, setUserExpanded] = useState(false);
+
+  // Auto-minimize once question is asked or processing (like ChatGPT)
+  const isEffectivelyMinimized = (claims.length > 0 || isChecking) && !userExpanded;
 
   const handlePetSpeech = (quote: string) => {
     setPetSpeechQuote(quote);
@@ -101,10 +108,19 @@ export function CenterWorkspace({
     setShowCorrected(!showCorrected);
   };
 
+  const handleVerifyClick = () => {
+    setUserExpanded(false);
+    onCheckFreshness();
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+    // Enter without Shift minimizes chat and verifies answer immediately (like ChatGPT)
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      onCheckFreshness();
+      handleVerifyClick();
+    } else if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+      e.preventDefault();
+      handleVerifyClick();
     }
   };
 
@@ -333,171 +349,260 @@ export function CenterWorkspace({
         )}
       </div>
 
-      {/* Floating Bottom Prompt Bar Container */}
-      <div className="p-3 sm:p-5 md:p-6 bg-gradient-to-t from-white via-white/95 to-transparent flex-shrink-0 max-w-3xl mx-auto w-full space-y-2">
-        {/* Heads Up Speech Bubble + Blob Mascot (Exact match to reference image) */}
-        <div className="flex items-center gap-2.5 sm:gap-3 relative z-10 self-start sm:ml-2">
-          {/* Mint Teal Feral Blob Mascot */}
-          <CodexBlobPet
-            isChecking={isChecking}
-            isTyping={isTyping}
-            overallScore={overallScore}
-            staleCount={summaryCounts?.stale ?? 0}
-            size="md"
-            onSpeech={handlePetSpeech}
-          />
+      {/* Bottom Prompt Bar: Auto-minimizes like ChatGPT once a question is asked */}
+      {isEffectivelyMinimized ? (
+        /* MINIMIZED CHATGPT DOCKED BAR */
+        <div className="p-2.5 sm:p-3.5 bg-gradient-to-t from-white via-white/95 to-transparent flex-shrink-0 max-w-4xl mx-auto w-full transition-all duration-300">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Mini Blob Mascot Companion */}
+            <div className="flex-shrink-0">
+              <CodexBlobPet
+                isChecking={isChecking}
+                isTyping={isTyping}
+                overallScore={overallScore}
+                staleCount={summaryCounts?.stale ?? 0}
+                size="sm"
+                onSpeech={handlePetSpeech}
+              />
+            </div>
 
-          {/* Speech Bubble with Pointer Tail */}
-          <div className="relative bg-white/95 backdrop-blur-xs rounded-2xl py-2 px-3.5 sm:px-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-[#E2E8F0] flex items-center gap-2 text-xs text-[#475569] leading-snug">
-            {/* Left triangular tail pointing to the blob mascot */}
-            <div className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-3 h-3 bg-white border-l border-b border-[#E2E8F0] rotate-45" />
+            {/* Compact Glowing Border Input Pill */}
+            <div className="flex-1 p-[1.5px] rounded-2xl bg-gradient-to-r from-[#67E8F9]/40 via-[#A5B4FC]/40 to-[#DDD6FE]/60 shadow-xs">
+              <div className="bg-white rounded-[14.5px] px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-2 border border-slate-200">
+                {/* Presets & Benchmark Drawer Button */}
+                <button
+                  type="button"
+                  onClick={() => setUserExpanded(true)}
+                  className="px-2 py-1 rounded-lg bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 text-slate-600 hover:text-indigo-700 transition-colors flex items-center gap-1.5 text-xs font-bold cursor-pointer"
+                  title="Expand benchmark presets"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-indigo-600" />
+                  <span className="hidden sm:inline">Presets</span>
+                </button>
 
-            <span className="font-bold text-[#0F172A] relative z-10">Heads up</span>
-            <span className="relative z-10 text-[#334155]">
-              {petSpeechQuote || "LLMs assert outdated facts after cutoff. Check answers against live web evidence."}
-            </span>
+                {/* Auto-expanding 1-line Textarea */}
+                <textarea
+                  rows={1}
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onFocus={() => setIsTyping(true)}
+                  onBlur={() => setIsTyping(false)}
+                  disabled={isChecking}
+                  placeholder="Ask a question or paste another answer to audit (Enter to verify)..."
+                  className="flex-1 text-sm sm:text-base text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none resize-none leading-relaxed bg-transparent font-sans py-1 max-h-24"
+                />
+
+                {/* Submit Arrow Button */}
+                <button
+                  type="button"
+                  onClick={handleVerifyClick}
+                  disabled={isChecking || !text.trim()}
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-900 hover:bg-indigo-600 active:scale-95 disabled:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-all flex-shrink-0 cursor-pointer shadow-xs"
+                  title="Verify Freshness (Enter)"
+                >
+                  {isChecking ? (
+                    <RotateCw className="w-4 h-4 animate-spin text-white" />
+                  ) : (
+                    <ArrowUp className="w-4 h-4 stroke-[2.5]" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Expand Full View Toggle */}
             <button
               type="button"
-              onClick={() => onSelectSample(SAMPLE_ANSWERS[0])}
-              className="font-bold text-[#059669] hover:text-[#047857] hover:underline cursor-pointer inline-flex items-center gap-0.5 relative z-10 transition-colors whitespace-nowrap"
+              onClick={() => setUserExpanded(true)}
+              className="p-2 sm:p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 transition-colors shadow-2xs cursor-pointer flex-shrink-0"
+              title="Expand full chat prompt card"
             >
-              Check facts →
+              <Maximize2 className="w-4 h-4" />
             </button>
-
-            {/* Carousel dots indicator on far right */}
-            <div className="hidden xs:flex items-center gap-1 ml-1.5 relative z-10 opacity-70">
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
-              <span className="w-3.5 h-1.5 rounded-full bg-[#059669]" />
-            </div>
           </div>
         </div>
-
-        {/* Clean Glowing Gradient Border Input Box */}
-        <div className="p-[1.5px] rounded-[22px] bg-gradient-to-r from-[#67E8F9]/40 via-[#A5B4FC]/30 to-[#DDD6FE]/50 shadow-[0_12px_32px_-8px_rgba(203,213,225,0.45)]">
-          <div className="bg-white rounded-[20.5px] p-4 sm:p-5 space-y-3">
-            {/* Top row tabs: Verify Answer vs Task Pipeline */}
-            <div className="flex items-center gap-1.5 text-xs font-medium">
-              <button
-                type="button"
-                onClick={() => setInputTab("chat")}
-                className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer text-xs ${
-                  inputTab === "chat"
-                    ? "bg-[#F8FAFC] border border-[#E2E8F0] text-[#0F172A] font-semibold shadow-2xs"
-                    : "text-[#64748B] hover:text-[#0F172A] hover:bg-slate-50"
-                }`}
-              >
-                <MessageSquare className="w-3.5 h-3.5 text-[#0F172A]" />
-                <span>Verify Answer</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setInputTab("verify")}
-                className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer text-xs ${
-                  inputTab === "verify"
-                    ? "bg-[#F8FAFC] border border-[#E2E8F0] text-[#0F172A] font-semibold shadow-2xs"
-                    : "text-[#64748B] hover:text-[#0F172A] hover:bg-slate-50"
-                }`}
-              >
-                <SlidersHorizontal className="w-3.5 h-3.5 text-[#64748B]" />
-                <span>Task Pipeline</span>
-              </button>
-            </div>
-
-            {/* Clean Input Textarea */}
-            <textarea
-              rows={3}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onFocus={() => setIsTyping(true)}
-              onBlur={() => setIsTyping(false)}
-              disabled={isChecking}
-              placeholder="Paste any AI-generated response to audit for expired facts, deprecated APIs, or outdated pricing..."
-              className="w-full text-sm sm:text-base text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none resize-none leading-relaxed bg-transparent font-sans min-h-[72px] sm:min-h-[82px]"
+      ) : (
+        /* FULL EXPANDED PROMPT CARD */
+        <div className="p-3 sm:p-5 md:p-6 bg-gradient-to-t from-white via-white/95 to-transparent flex-shrink-0 max-w-3xl mx-auto w-full space-y-2 transition-all duration-300">
+          {/* Heads Up Speech Bubble + Blob Mascot */}
+          <div className="flex items-center gap-2.5 sm:gap-3 relative z-10 self-start sm:ml-2">
+            <CodexBlobPet
+              isChecking={isChecking}
+              isTyping={isTyping}
+              overallScore={overallScore}
+              staleCount={summaryCounts?.stale ?? 0}
+              size="md"
+              onSpeech={handlePetSpeech}
             />
 
-            {/* Error Message if any */}
-            {errorMessage && (
-              <div className="text-xs text-rose-700 bg-rose-50 border border-rose-200 p-2.5 rounded-xl flex items-center justify-between">
-                <span>{errorMessage}</span>
-                <button
-                  type="button"
-                  onClick={onCheckFreshness}
-                  className="font-semibold underline ml-2 cursor-pointer"
-                >
-                  Retry
-                </button>
-              </div>
-            )}
+            {/* Speech Bubble with Pointer Tail */}
+            <div className="relative bg-white/95 backdrop-blur-xs rounded-2xl py-2 px-3.5 sm:px-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-[#E2E8F0] flex items-center gap-2 text-xs text-[#475569] leading-snug">
+              <div className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-3 h-3 bg-white border-l border-b border-[#E2E8F0] rotate-45" />
 
-            {/* Bottom Toolbar with 4 FreshCheck Prototype Pills and Squircle Send Button */}
-            <div className="flex items-center justify-between pt-2.5 border-t border-[#F1F5F9] gap-2">
-              <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-0.5 scrollbar-none flex-1">
-                {/* 1. API & Library Deprecations (Pink) */}
-                <button
-                  type="button"
-                  onClick={() => onSelectSample(SAMPLE_ANSWERS[0])}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#FFF1F2] text-[#E11D48] border border-[#FFE4E6] hover:bg-[#FFE4E6] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
-                  title="Benchmark 1: Node.js, Next.js & Python release lifecycle"
-                >
-                  <FileCode className="w-3.5 h-3.5 text-[#E11D48]" />
-                  <span>API Deprecations</span>
-                </button>
-
-                {/* 2. Leadership & C-Suite (Mint) */}
-                <button
-                  type="button"
-                  onClick={() => onSelectSample(SAMPLE_ANSWERS[1])}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#F0FDFA] text-[#0D9488] border border-[#CCFBF1] hover:bg-[#CCFBF1] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
-                  title="Benchmark 2: Corporate leadership & CEO tenure verification"
-                >
-                  <Users className="w-3.5 h-3.5 text-[#0D9488]" />
-                  <span>Leadership Audit</span>
-                </button>
-
-                {/* 3. AI Models & SaaS Pricing (Sky Blue) */}
-                <button
-                  type="button"
-                  onClick={() => onSelectSample(SAMPLE_ANSWERS[2])}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#F0F9FF] text-[#0284C7] border border-[#E0F2FE] hover:bg-[#E0F2FE] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
-                  title="Benchmark 3: GPT-4, Claude & OpenAI token pricing drift"
-                >
-                  <Coins className="w-3.5 h-3.5 text-[#0284C7]" />
-                  <span>Model Pricing Drift</span>
-                </button>
-
-                {/* 4. Regulatory Standards (Amber) */}
-                <button
-                  type="button"
-                  onClick={() => onSelectSample({
-                    id: "sebi-regulations",
-                    title: "Regulatory Compliance Standards",
-                    category: "pricing_and_models",
-                    text: "Under the SEBI BRSR Core guidelines for FY2026, assurance is voluntary for top 1000 listed entities, and the global CSRD reporting standard has been indefinitely delayed.",
-                    answerDate: "2023-01-01",
-                  })}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#FFFBEB] text-[#D97706] border border-[#FEF3C7] hover:bg-[#FEF3C7] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
-                  title="Benchmark 4: SEBI BRSR & legal compliance requirements"
-                >
-                  <Scale className="w-3.5 h-3.5 text-[#D97706]" />
-                  <span>Regulatory Standards</span>
-                </button>
-              </div>
-
-              {/* Squircle Send Button (rounded-xl with soft cool-slate styling) */}
+              <span className="font-bold text-[#0F172A] relative z-10">Heads up</span>
+              <span className="relative z-10 text-[#334155]">
+                {petSpeechQuote || "LLMs assert outdated facts after cutoff. Check answers against live web evidence."}
+              </span>
               <button
                 type="button"
-                onClick={onCheckFreshness}
-                disabled={isChecking || !text.trim()}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#EEF2F6] hover:bg-[#E2E8F0] active:scale-95 disabled:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-[#334155] flex items-center justify-center transition-all flex-shrink-0 cursor-pointer shadow-2xs"
-                title="Verify Freshness (⌘+Enter)"
+                onClick={() => onSelectSample(SAMPLE_ANSWERS[0])}
+                className="font-bold text-[#059669] hover:text-[#047857] hover:underline cursor-pointer inline-flex items-center gap-0.5 relative z-10 transition-colors whitespace-nowrap"
               >
-                <ArrowUp className="w-4.5 h-4.5" />
+                Check facts →
               </button>
+
+              <div className="hidden xs:flex items-center gap-1 ml-1.5 relative z-10 opacity-70">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                <span className="w-3.5 h-1.5 rounded-full bg-[#059669]" />
+              </div>
+            </div>
+          </div>
+
+          {/* Clean Glowing Gradient Border Input Box */}
+          <div className="p-[1.5px] rounded-[22px] bg-gradient-to-r from-[#67E8F9]/40 via-[#A5B4FC]/30 to-[#DDD6FE]/50 shadow-[0_12px_32px_-8px_rgba(203,213,225,0.45)]">
+            <div className="bg-white rounded-[20.5px] p-4 sm:p-5 space-y-3">
+              {/* Top row tabs: Verify Answer vs Task Pipeline + Minimize Button */}
+              <div className="flex items-center justify-between text-xs font-medium">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setInputTab("chat")}
+                    className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer text-xs ${
+                      inputTab === "chat"
+                        ? "bg-[#F8FAFC] border border-[#E2E8F0] text-[#0F172A] font-semibold shadow-2xs"
+                        : "text-[#64748B] hover:text-[#0F172A] hover:bg-slate-50"
+                    }`}
+                  >
+                    <MessageSquare className="w-3.5 h-3.5 text-[#0F172A]" />
+                    <span>Verify Answer</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInputTab("verify")}
+                    className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer text-xs ${
+                      inputTab === "verify"
+                        ? "bg-[#F8FAFC] border border-[#E2E8F0] text-[#0F172A] font-semibold shadow-2xs"
+                        : "text-[#64748B] hover:text-[#0F172A] hover:bg-slate-50"
+                    }`}
+                  >
+                    <SlidersHorizontal className="w-3.5 h-3.5 text-[#64748B]" />
+                    <span>Task Pipeline</span>
+                  </button>
+                </div>
+
+                {(claims.length > 0 || isChecking) && (
+                  <button
+                    type="button"
+                    onClick={() => setUserExpanded(false)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors flex items-center gap-1 text-xs cursor-pointer font-medium"
+                    title="Minimize chat section"
+                  >
+                    <Minimize2 className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Minimize</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Clean Input Textarea */}
+              <textarea
+                rows={3}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onFocus={() => setIsTyping(true)}
+                onBlur={() => setIsTyping(false)}
+                disabled={isChecking}
+                placeholder="Paste any AI-generated response to audit for expired facts, deprecated APIs, or outdated pricing..."
+                className="w-full text-sm sm:text-base text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none resize-none leading-relaxed bg-transparent font-sans min-h-[72px] sm:min-h-[82px]"
+              />
+
+              {/* Error Message if any */}
+              {errorMessage && (
+                <div className="text-xs text-rose-700 bg-rose-50 border border-rose-200 p-2.5 rounded-xl flex items-center justify-between">
+                  <span>{errorMessage}</span>
+                  <button
+                    type="button"
+                    onClick={onCheckFreshness}
+                    className="font-semibold underline ml-2 cursor-pointer"
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
+
+              {/* Bottom Toolbar with 4 FreshCheck Prototype Pills and Squircle Send Button */}
+              <div className="flex items-center justify-between pt-2.5 border-t border-[#F1F5F9] gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-0.5 scrollbar-none flex-1">
+                  {/* 1. API & Library Deprecations (Pink) */}
+                  <button
+                    type="button"
+                    onClick={() => onSelectSample(SAMPLE_ANSWERS[0])}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#FFF1F2] text-[#E11D48] border border-[#FFE4E6] hover:bg-[#FFE4E6] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
+                    title="Benchmark 1: Node.js, Next.js & Python release lifecycle"
+                  >
+                    <FileCode className="w-3.5 h-3.5 text-[#E11D48]" />
+                    <span>API Deprecations</span>
+                  </button>
+
+                  {/* 2. Leadership & C-Suite (Mint) */}
+                  <button
+                    type="button"
+                    onClick={() => onSelectSample(SAMPLE_ANSWERS[1])}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#F0FDFA] text-[#0D9488] border border-[#CCFBF1] hover:bg-[#CCFBF1] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
+                    title="Benchmark 2: Corporate leadership & CEO tenure verification"
+                  >
+                    <Users className="w-3.5 h-3.5 text-[#0D9488]" />
+                    <span>Leadership Audit</span>
+                  </button>
+
+                  {/* 3. AI Models & SaaS Pricing (Sky Blue) */}
+                  <button
+                    type="button"
+                    onClick={() => onSelectSample(SAMPLE_ANSWERS[2])}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#F0F9FF] text-[#0284C7] border border-[#E0F2FE] hover:bg-[#E0F2FE] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
+                    title="Benchmark 3: GPT-4, Claude & OpenAI token pricing drift"
+                  >
+                    <Coins className="w-3.5 h-3.5 text-[#0284C7]" />
+                    <span>Model Pricing Drift</span>
+                  </button>
+
+                  {/* 4. Regulatory Standards (Amber) */}
+                  <button
+                    type="button"
+                    onClick={() => onSelectSample({
+                      id: "sebi-regulations",
+                      title: "Regulatory Compliance Standards",
+                      category: "pricing_and_models",
+                      text: "Under the SEBI BRSR Core guidelines for FY2026, assurance is voluntary for top 1000 listed entities, and the global CSRD reporting standard has been indefinitely delayed.",
+                      answerDate: "2023-01-01",
+                    })}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#FFFBEB] text-[#D97706] border border-[#FEF3C7] hover:bg-[#FEF3C7] transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 min-h-[34px] shadow-2xs"
+                    title="Benchmark 4: SEBI BRSR & legal compliance requirements"
+                  >
+                    <Scale className="w-3.5 h-3.5 text-[#D97706]" />
+                    <span>Regulatory Standards</span>
+                  </button>
+                </div>
+
+                {/* Squircle Send Button */}
+                <button
+                  type="button"
+                  onClick={handleVerifyClick}
+                  disabled={isChecking || !text.trim()}
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-900 hover:bg-indigo-600 active:scale-95 disabled:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-all flex-shrink-0 cursor-pointer shadow-2xs"
+                  title="Verify Freshness (Enter)"
+                >
+                  {isChecking ? (
+                    <RotateCw className="w-4.5 h-4.5 animate-spin text-white" />
+                  ) : (
+                    <ArrowUp className="w-4.5 h-4.5 stroke-[2.5]" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </main>
   );
 }
