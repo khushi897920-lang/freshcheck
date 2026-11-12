@@ -186,7 +186,7 @@ export default function FreshCheckApp() {
   };
 
   const handleCheckFreshness = async () => {
-    const textToSubmit = text.trim();
+    const textToSubmit = text.trim() || submittedText.trim();
     if (!textToSubmit) {
       setErrorMessage("Please enter or paste an AI answer to verify.");
       return;

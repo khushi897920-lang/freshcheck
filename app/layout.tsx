@@ -19,6 +19,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(regs) {
+                  for (var reg of regs) { reg.unregister(); }
+                });
+              }
+            `,
+          }}
+        />
+      </head>
       <body className="font-sans antialiased min-h-screen text-[#0F172A] bg-gradient-to-br from-[#DCE6F5] via-[#E7EDF9] to-[#E3EAF7] selection:bg-[#6366F1]/20">
         {children}
       </body>
