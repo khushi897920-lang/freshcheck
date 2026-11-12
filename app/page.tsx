@@ -199,7 +199,7 @@ export default function FreshCheckApp() {
             setStep("done");
 
             if (parsed.checkId) {
-              window.history.replaceState(null, "", `/check/${parsed.checkId}`);
+              setCheckId(parsed.checkId);
             }
           } else if (eventName === "error") {
             throw new Error(parsed.message || "Pipeline error occurred.");

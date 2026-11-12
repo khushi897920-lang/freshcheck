@@ -8,6 +8,7 @@ import { CenterWorkspace } from "@/components/CenterWorkspace";
 import { EvidenceDrawer, DrawerClaimData } from "@/components/EvidenceDrawer";
 import { CheckRecord } from "@/lib/db";
 import { SampleAnswer, SAMPLE_ANSWERS } from "@/data/samples";
+import Link from "next/link";
 import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 
 export default function CheckResultPage() {
@@ -103,17 +104,19 @@ export default function CheckResultPage() {
           <div className="w-10 h-10 rounded-full bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto">
             <AlertCircle className="w-5 h-5" />
           </div>
-          <h2 className="text-base font-bold text-[#1E232B]">Report Not Found</h2>
-          <p className="text-xs text-[#64748B]">
-            {error || "The requested verification report does not exist."}
+          <h2 className="text-lg font-bold text-slate-900">Report Not Found</h2>
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            {error || "This verification report does not exist or has expired."}
           </p>
-          <button
-            type="button"
-            onClick={handleNewCheck}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#6366F1] text-white text-xs font-semibold cursor-pointer hover:bg-[#4F46E5] transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" /> Start New Check
-          </button>
+          <div className="pt-2">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-bold cursor-pointer hover:bg-indigo-600 transition-colors shadow-xs"
+            >
+              <ArrowLeft className="w-4 h-4 stroke-[2.5]" />
+              <span>Back to FreshCheck Workspace</span>
+            </Link>
+          </div>
         </div>
       </div>
     );

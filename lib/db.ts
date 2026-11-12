@@ -1,5 +1,7 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
+import fs from "fs";
+import path from "path";
 
 export interface CheckRecord {
   id: string;
@@ -49,11 +51,53 @@ export interface EvidenceRecord {
   rank?: number;
 }
 
-// In-Memory store for offline fallback
+// Persistent Local Fallback Store
 const memoryChecks = new Map<string, CheckRecord>();
 const memoryClaims = new Map<string, ClaimRecord[]>();
 const memoryEvidence = new Map<string, EvidenceRecord[]>();
 const memorySearchCache = new Map<string, any>();
+
+const DATA_DIR = path.join(process.cwd(), ".cache");
+const DB_FILE = path.join(DATA_DIR, "local_db.json");
+
+function ensureDbLoaded() {
+  try {
+    if (fs.existsSync(DB_FILE)) {
+      const raw = fs.readFileSync(DB_FILE, "utf-8");
+      const parsed = JSON.parse(raw);
+      if (parsed.checks) {
+        for (const [k, v] of Object.entries(parsed.checks)) memoryChecks.set(k, v as any);
+      }
+      if (parsed.claims) {
+        for (const [k, v] of Object.entries(parsed.claims)) memoryClaims.set(k, v as any);
+      }
+      if (parsed.evidence) {
+        for (const [k, v] of Object.entries(parsed.evidence)) memoryEvidence.set(k, v as any);
+      }
+    }
+  } catch (err) {
+    // Ignore initial missing file
+  }
+}
+
+function persistDb() {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    const data = {
+      checks: Object.fromEntries(memoryChecks),
+      claims: Object.fromEntries(memoryClaims),
+      evidence: Object.fromEntries(memoryEvidence),
+    };
+    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), "utf-8");
+  } catch (err) {
+    console.warn("[DB] Could not persist local db file:", err);
+  }
+}
+
+// Initial load
+ensureDbLoaded();
 
 function getSupabaseClient(): SupabaseClient | null {
   const url = process.env.SUPABASE_URL;
@@ -104,6 +148,7 @@ export async function createCheck(
 
   // Memory fallback
   memoryChecks.set(id, record);
+  persistDb();
   return record;
 }
 
@@ -123,6 +168,7 @@ export async function updateCheck(
   const existing = memoryChecks.get(id);
   if (existing) {
     memoryChecks.set(id, { ...existing, ...updates });
+    persistDb();
   }
 }
 
@@ -149,6 +195,7 @@ export async function insertClaims(
     list.push(record);
     memoryClaims.set(record.check_id, list);
   }
+  persistDb();
 
   return records;
 }
@@ -175,6 +222,7 @@ export async function insertEvidence(
     list.push(record);
     memoryEvidence.set(record.claim_id, list);
   }
+  persistDb();
 
   return records;
 }
@@ -204,6 +252,7 @@ export async function getCheckById(id: string): Promise<CheckRecord | null> {
   }
 
   // Memory fallback
+  ensureDbLoaded();
   const check = memoryChecks.get(id);
   if (!check) return null;
 
