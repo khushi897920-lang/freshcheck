@@ -1,7 +1,14 @@
 # FreshCheck <img src="public/favicon.svg" alt="FreshCheck Logo" width="36" height="36" align="center" />
 > **Spell-check for facts that expire. Paste any AI answer or ask any question to see which claims are fresh vs stale.**
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-success?style=for-the-badge&logo=vercel)](https://freshguard-ai-eight.vercel.app)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue?style=for-the-badge&logo=github)](https://github.com/khushi897920-lang/freshcheck)
+[![Database](https://img.shields.io/badge/Database-Supabase-emerald?style=for-the-badge&logo=supabase)](https://supabase.com)
+
 Built for **Geek Room Global AI Hackathon 2026** · **Problem Statement 06 (Tavily × Bifrost)**
+
+🔗 **Live Production URL:** [https://freshguard-ai-eight.vercel.app](https://freshguard-ai-eight.vercel.app)  
+📦 **Repository:** [https://github.com/khushi897920-lang/freshcheck](https://github.com/khushi897920-lang/freshcheck)
 
 ---
 
