@@ -10,6 +10,7 @@ import { SampleAnswer, SAMPLE_ANSWERS } from "@/data/samples";
 
 export default function FreshCheckApp() {
   const [text, setText] = useState("");
+  const [submittedText, setSubmittedText] = useState("");
   const [answerDate, setAnswerDate] = useState("");
   const [isChecking, setIsChecking] = useState(false);
   const [step, setStep] = useState<PipelineStep>("idle");
@@ -42,6 +43,7 @@ export default function FreshCheckApp() {
 
   const handleNewCheck = () => {
     setText("");
+    setSubmittedText("");
     setAnswerDate("");
     setClaims([]);
     setOverallScore(null);
@@ -55,6 +57,7 @@ export default function FreshCheckApp() {
 
   const handleSelectSample = (sample: SampleAnswer) => {
     setText(sample.text);
+    setSubmittedText("");
     if (sample.answerDate) {
       setAnswerDate(sample.answerDate);
     }
@@ -80,14 +83,19 @@ export default function FreshCheckApp() {
   };
 
   const handleCheckFreshness = async () => {
-    if (!text.trim()) {
+    const textToSubmit = text.trim();
+    if (!textToSubmit) {
       setErrorMessage("Please enter or paste an AI answer to verify.");
       return;
     }
-    if (text.length > 4000) {
+    if (textToSubmit.length > 4000) {
       setErrorMessage("Text exceeds maximum 4,000 characters limit.");
       return;
     }
+
+    // Save submitted text for the main canvas, and clear the input textarea like ChatGPT!
+    setSubmittedText(textToSubmit);
+    setText("");
 
     setIsChecking(true);
     setStep("extracting");
@@ -101,7 +109,7 @@ export default function FreshCheckApp() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          text,
+          text: textToSubmit,
           answerDate: answerDate || null,
         }),
       });
@@ -223,6 +231,7 @@ export default function FreshCheckApp() {
       <CenterWorkspace
         text={text}
         setText={setText}
+        submittedText={submittedText}
         answerDate={answerDate}
         setAnswerDate={setAnswerDate}
         isChecking={isChecking}
@@ -249,7 +258,7 @@ export default function FreshCheckApp() {
         checkId={checkId}
         overallScore={overallScore}
         claims={claims}
-        inputText={text}
+        inputText={submittedText || text}
         onSelectClaim={setSelectedClaim}
         onLoadBenchmark={handleLoadBenchmark}
       />

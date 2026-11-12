@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Bell,
   Volume2,
@@ -38,6 +38,7 @@ import { generateCorrectedAnswer, CorrectedAnswerResult } from "@/lib/correct";
 interface CenterWorkspaceProps {
   text: string;
   setText: (text: string) => void;
+  submittedText?: string;
   answerDate: string;
   setAnswerDate: (date: string) => void;
   isChecking: boolean;
@@ -65,6 +66,7 @@ interface CenterWorkspaceProps {
 export function CenterWorkspace({
   text,
   setText,
+  submittedText = "",
   answerDate,
   setAnswerDate,
   isChecking,
@@ -90,8 +92,23 @@ export function CenterWorkspace({
   const [petSpeechQuote, setPetSpeechQuote] = useState<string | null>(null);
   const [userExpanded, setUserExpanded] = useState(false);
 
+  const minimizedTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const expandedTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-resize textarea height like ChatGPT based on typing
+  useEffect(() => {
+    if (minimizedTextareaRef.current) {
+      minimizedTextareaRef.current.style.height = "auto";
+      minimizedTextareaRef.current.style.height = `${Math.min(minimizedTextareaRef.current.scrollHeight, 140)}px`;
+    }
+    if (expandedTextareaRef.current) {
+      expandedTextareaRef.current.style.height = "auto";
+      expandedTextareaRef.current.style.height = `${Math.min(expandedTextareaRef.current.scrollHeight, 220)}px`;
+    }
+  }, [text]);
+
   // Auto-minimize once question is asked or processing (like ChatGPT)
-  const isEffectivelyMinimized = (claims.length > 0 || isChecking) && !userExpanded;
+  const isEffectivelyMinimized = (claims.length > 0 || isChecking || !!submittedText) && !userExpanded;
 
   const handlePetSpeech = (quote: string) => {
     setPetSpeechQuote(quote);
@@ -102,7 +119,7 @@ export function CenterWorkspace({
 
   const handleToggleCorrected = () => {
     if (!correctedResult && claims.length > 0) {
-      const res = generateCorrectedAnswer(text, claims);
+      const res = generateCorrectedAnswer(submittedText || text, claims);
       setCorrectedResult(res);
     }
     setShowCorrected(!showCorrected);
@@ -206,7 +223,7 @@ export function CenterWorkspace({
       {/* Main Scrollable Canvas */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 md:space-y-8 flex flex-col justify-start">
         {/* Welcome Hero (Shown when idle) */}
-        {claims.length === 0 && !isChecking && (
+        {claims.length === 0 && !isChecking && !submittedText && (
           <div className="text-center my-auto pt-6 pb-2 space-y-3 select-none">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-[#0F172A] leading-tight">
               Good afternoon, <span className="text-[#0F172A] font-extrabold">Researcher</span>
@@ -320,7 +337,7 @@ export function CenterWorkspace({
                 </div>
               ) : (
                 <AnnotatedAnswer
-                  originalText={text}
+                  originalText={submittedText || text}
                   claims={claims}
                   onSelectClaim={onSelectClaim}
                   selectedClaimId={selectedClaim?.id}
@@ -380,17 +397,23 @@ export function CenterWorkspace({
                   <span className="hidden sm:inline">Presets</span>
                 </button>
 
-                {/* Auto-expanding 1-line Textarea */}
+                {/* Auto-expanding dynamic Textarea (grows smoothly with input like ChatGPT) */}
                 <textarea
+                  ref={minimizedTextareaRef}
                   rows={1}
                   value={text}
-                  onChange={(e) => setText(e.target.value)}
+                  onChange={(e) => {
+                    setText(e.target.value);
+                    e.target.style.height = "auto";
+                    e.target.style.height = `${Math.min(e.target.scrollHeight, 140)}px`;
+                  }}
                   onKeyDown={handleKeyDown}
                   onFocus={() => setIsTyping(true)}
                   onBlur={() => setIsTyping(false)}
                   disabled={isChecking}
                   placeholder="Ask a question or paste another answer to audit (Enter to verify)..."
-                  className="flex-1 text-sm sm:text-base text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none resize-none leading-relaxed bg-transparent font-sans py-1 max-h-24"
+                  className="flex-1 text-sm sm:text-base text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none resize-none bg-transparent font-sans py-1 leading-normal overflow-y-auto"
+                  style={{ minHeight: "28px", maxHeight: "140px" }}
                 />
 
                 {/* Submit Arrow Button */}
@@ -503,17 +526,22 @@ export function CenterWorkspace({
                 )}
               </div>
 
-              {/* Clean Input Textarea */}
+              {/* Clean Input Textarea with auto-expand */}
               <textarea
+                ref={expandedTextareaRef}
                 rows={3}
                 value={text}
-                onChange={(e) => setText(e.target.value)}
+                onChange={(e) => {
+                  setText(e.target.value);
+                  e.target.style.height = "auto";
+                  e.target.style.height = `${Math.min(e.target.scrollHeight, 220)}px`;
+                }}
                 onKeyDown={handleKeyDown}
                 onFocus={() => setIsTyping(true)}
                 onBlur={() => setIsTyping(false)}
                 disabled={isChecking}
                 placeholder="Paste any AI-generated response to audit for expired facts, deprecated APIs, or outdated pricing..."
-                className="w-full text-sm sm:text-base text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none resize-none leading-relaxed bg-transparent font-sans min-h-[72px] sm:min-h-[82px]"
+                className="w-full text-sm sm:text-base text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none resize-none leading-relaxed bg-transparent font-sans min-h-[72px] sm:min-h-[82px] max-h-[220px] overflow-y-auto"
               />
 
               {/* Error Message if any */}
