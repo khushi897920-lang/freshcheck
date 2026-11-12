@@ -490,12 +490,12 @@ export function CenterWorkspace({
             />
 
             {/* Speech Bubble with Pointer Tail */}
-            <div className="relative bg-white/95 backdrop-blur-xs rounded-2xl py-2 px-3.5 sm:px-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-[#E2E8F0] flex items-center gap-2 text-xs text-[#475569] leading-snug">
+            <div className="relative bg-white/95 backdrop-blur-xs rounded-2xl py-1.5 px-3 sm:px-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-[#E2E8F0] flex items-center gap-2 text-xs text-[#475569] leading-snug max-w-full">
               <div className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-3 h-3 bg-white border-l border-b border-[#E2E8F0] rotate-45" />
 
-              <span className="font-bold text-[#0F172A] relative z-10">Heads up</span>
-              <span className="relative z-10 text-[#334155]">
-                {petSpeechQuote || "LLMs assert outdated facts after cutoff. Check answers against live web evidence."}
+              <span className="font-bold text-[#0F172A] relative z-10 whitespace-nowrap">Heads up</span>
+              <span className="relative z-10 text-[#334155] line-clamp-1 sm:line-clamp-none">
+                {petSpeechQuote || "Verify AI facts with live web evidence."}
               </span>
               <button
                 type="button"
