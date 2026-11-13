@@ -184,7 +184,15 @@ export async function insertClaims(
   const supabase = getSupabaseClient();
   if (supabase) {
     try {
-      await supabase.from("claims").insert(records);
+      // Strip virtual/transient fields that don't exist in Supabase claims table
+      const dbPayload = records.map((r) => {
+        const { evidence, verification_mode, ...safe } = r as any;
+        return safe;
+      });
+      const { error } = await supabase.from("claims").insert(dbPayload);
+      if (error) {
+        console.warn("[DB] Supabase insert claims error:", error.message);
+      }
     } catch (e) {
       console.warn("[DB] Supabase insert claims failed, using memory store:", e);
     }
@@ -208,7 +216,11 @@ export async function updateClaim(
   const supabase = getSupabaseClient();
   if (supabase) {
     try {
-      await supabase.from("claims").update(updates).eq("id", id);
+      const { evidence, verification_mode, ...safeUpdates } = updates as any;
+      const { error } = await supabase.from("claims").update(safeUpdates).eq("id", id);
+      if (error) {
+        console.warn("[DB] Supabase update claim error:", error.message);
+      }
     } catch (e) {
       console.warn("[DB] Supabase update claim failed, updating memory store:", e);
     }
@@ -236,7 +248,10 @@ export async function insertEvidence(
   const supabase = getSupabaseClient();
   if (supabase) {
     try {
-      await supabase.from("evidence").insert(records);
+      const { error } = await supabase.from("evidence").insert(records);
+      if (error) {
+        console.warn("[DB] Supabase insert evidence error:", error.message);
+      }
     } catch (e) {
       console.warn("[DB] Supabase insert evidence failed, using memory store:", e);
     }
@@ -269,6 +284,17 @@ export async function getCheckById(id: string): Promise<CheckRecord | null> {
         .single();
 
       if (!error && check) {
+        // If Supabase claims were empty from a previous run, fall back to local store
+        if (!check.claims || check.claims.length === 0) {
+          ensureDbLoaded();
+          const memClaims = memoryClaims.get(id);
+          if (memClaims && memClaims.length > 0) {
+            check.claims = memClaims.map((claim) => ({
+              ...claim,
+              evidence: memoryEvidence.get(claim.id) || [],
+            }));
+          }
+        }
         return check as CheckRecord;
       }
     } catch (e) {
