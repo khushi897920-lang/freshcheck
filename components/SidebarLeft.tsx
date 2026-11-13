@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   Plus,
-  Settings,
+  HelpCircle,
   ChevronDown,
   ChevronRight,
   ArrowLeft,
@@ -312,12 +312,13 @@ export function SidebarLeft({
                 <p className="text-[10px] text-[#64748B]">Auditor</p>
               </div>
             </div>
-            <button
-              type="button"
+            <Link
+              href="/how-it-works"
+              title="How it works & documentation"
               className="p-1 rounded text-[#64748B] hover:text-[#0F172A] transition-colors cursor-pointer"
             >
-              <Settings className="w-3.5 h-3.5" />
-            </button>
+              <HelpCircle className="w-3.5 h-3.5" />
+            </Link>
           </div>
 
           <Link

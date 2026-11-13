@@ -145,8 +145,8 @@ Fill in your keys:
 TAVILY_API_KEY=tvly-your-api-key
 BIFROST_BASE_URL=http://localhost:8080/v1
 BIFROST_API_KEY=sk-bf-your-bifrost-key
-MODEL_PRIMARY=qwen/qwen3.8-27b
-MODEL_FALLBACK=qwen/qwen3.8-27b
+MODEL_PRIMARY=groq/qwen/qwen3.8-27b
+MODEL_FALLBACK=groq/qwen/qwen3.8-27b
 ```
 
 ### 3. Run Bifrost Gateway (Docker)

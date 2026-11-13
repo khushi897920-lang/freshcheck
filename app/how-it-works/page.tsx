@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import Link from "next/link";
-import { ArrowLeft, Cpu, Globe, Scale, RefreshCw, Zap, ShieldAlert, CheckCircle2, AlertTriangle, ArrowRight } from "lucide-react";
+import { ArrowLeft, Cpu, Globe, Scale, RefreshCw, Zap, ShieldAlert, CheckCircle2, AlertTriangle, ArrowRight, XCircle, FileText, Boxes } from "lucide-react";
 
 export default function HowItWorksPage() {
   return (
@@ -23,6 +23,33 @@ export default function HowItWorksPage() {
           <p className="text-base sm:text-lg text-slate-200 max-w-2xl leading-relaxed font-normal">
             LLMs expire silently. FreshCheck operates as a real-time temporal verification layer, combining <strong className="text-white font-semibold">Bifrost AI gateway</strong> orchestration with <strong className="text-white font-semibold">Tavily live web intelligence</strong>.
           </p>
+        </div>
+
+        {/* Honesty callout: what it verifies vs what it does not */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-5 sm:p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-2">
+            <div className="flex items-center gap-2 text-emerald-300 font-bold text-sm">
+              <CheckCircle2 className="w-4 h-4" />
+              What FreshCheck verifies
+            </div>
+            <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+              Facts that <strong className="text-white font-semibold">change over time</strong>: pricing
+              tiers, software versions, company leadership, laws &amp; regulations, and product
+              availability. Every claim gets a verdict, a 0–100 freshness score, and live source links.
+            </p>
+          </div>
+          <div className="p-5 sm:p-6 rounded-2xl bg-rose-500/10 border border-rose-500/30 space-y-2">
+            <div className="flex items-center gap-2 text-rose-300 font-bold text-sm">
+              <XCircle className="w-4 h-4" />
+              What it does not do
+            </div>
+            <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+              It is <strong className="text-white font-semibold">not a truth detector for static facts</strong>
+              (e.g. &ldquo;earth is flat&rdquo;) and not an opinion checker. It measures{" "}
+              <em>recency</em>, not absolute truth — a statement that never changes is reported as
+              &ldquo;not time-sensitive&rdquo;, not as &ldquo;true&rdquo;.
+            </p>
+          </div>
         </div>
 
         {/* Dual Mandatory Tech Architecture */}
@@ -145,6 +172,63 @@ export default function HowItWorksPage() {
           </div>
         </div>
 
+        {/* Worked Example */}
+        <div className="p-6 sm:p-8 rounded-2xl bg-[#0C0D10] border border-[#222630] space-y-5 shadow-xl">
+          <div className="flex items-center gap-2.5 border-b border-[#222630] pb-4">
+            <FileText className="w-5 h-5 text-indigo-400" />
+            <div>
+              <h2 className="text-xl font-bold text-white tracking-tight">A Concrete Example</h2>
+              <p className="text-xs text-slate-300 mt-0.5">From pasted answer to verdict, end to end</p>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-xl bg-black border border-[#222630] space-y-1.5">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">Input</span>
+            <p className="font-mono text-xs sm:text-sm text-slate-200">
+              &ldquo;For production backends, the recommended Node.js active LTS release is Node.js 16.&rdquo;
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <div className="p-4 rounded-xl bg-black border border-[#222630] space-y-1.5">
+              <span className="text-[10px] font-mono font-bold text-indigo-400 uppercase tracking-wider">1 · Extract</span>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Splits into an atomic claim:{" "}
+                <code className="text-indigo-200 bg-white/10 px-1 py-0.5 rounded font-mono text-[11px]">
+                  &ldquo;Node.js 16 is the active LTS release&rdquo;
+                </code>{" "}
+                with offsets and <span className="text-white font-semibold">version / high volatility</span>.
+              </p>
+            </div>
+            <div className="p-4 rounded-xl bg-black border border-[#222630] space-y-1.5">
+              <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider">2 · Search</span>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Queries Tavily with{" "}
+                <code className="text-emerald-200 bg-white/10 px-1 py-0.5 rounded font-mono text-[11px]">
+                  Node.js LTS release latest {new Date().getFullYear()}
+                </code>
+                , returning live source snippets and dates.
+              </p>
+            </div>
+            <div className="p-4 rounded-xl bg-black border border-[#222630] space-y-1.5">
+              <span className="text-[10px] font-mono font-bold text-amber-400 uppercase tracking-wider">3 · Judge</span>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Bifrost compares the claim to evidence and returns{" "}
+                <code className="text-rose-300 bg-white/10 px-1 py-0.5 rounded font-mono text-[11px]">OUTDATED</code>{" "}
+                with current value <span className="text-white font-semibold">Node.js 22 LTS</span>.
+              </p>
+            </div>
+            <div className="p-4 rounded-xl bg-black border border-[#222630] space-y-1.5">
+              <span className="text-[10px] font-mono font-bold text-rose-400 uppercase tracking-wider">4 · Score</span>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                <code className="text-indigo-200 bg-white/10 px-1 py-0.5 rounded font-mono text-[11px]">lib/score.ts</code>{" "}
+                computes the score deterministically — an <span className="text-rose-300 font-semibold">OUTDATED</span>{" "}
+                claim lands in the <span className="text-white font-semibold">Stale (&lt; 40)</span> band.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Scoring Calibration Table */}
         <div className="p-6 sm:p-8 rounded-2xl bg-[#0C0D10] border border-[#222630] space-y-5 shadow-xl">
           <div className="flex items-center gap-2.5 border-b border-[#222630] pb-4">
@@ -167,7 +251,7 @@ export default function HowItWorksPage() {
               <tbody className="divide-y divide-[#222630]/70 text-slate-200">
                 <tr className="hover:bg-white/5 transition-colors">
                   <td className="py-3 px-2 font-semibold text-white">Base Verdict</td>
-                  <td className="font-mono text-xs">SUPPORTED / PARTIAL / UNVERIFIABLE / OUTDATED</td>
+                  <td className="font-mono text-xs">SUPPORTED / PARTIALLY_SUPPORTED / UNVERIFIABLE / OUTDATED</td>
                   <td className="font-mono font-bold text-white">90 / 60 / 40 / 10</td>
                 </tr>
                 <tr className="hover:bg-white/5 transition-colors">
@@ -197,6 +281,44 @@ export default function HowItWorksPage() {
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+
+        {/* Tech Stack & File Map */}
+        <div className="p-6 sm:p-8 rounded-2xl bg-[#0C0D10] border border-[#222630] space-y-5 shadow-xl">
+          <div className="flex items-center gap-2.5 border-b border-[#222630] pb-4">
+            <Boxes className="w-5 h-5 text-indigo-400" />
+            <div>
+              <h2 className="text-xl font-bold text-white tracking-tight">Built with a real, auditable stack</h2>
+              <p className="text-xs text-slate-300 mt-0.5">Every stage maps to a source file you can open and inspect</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+            <div className="p-3.5 rounded-lg bg-black border border-[#222630]">
+              <span className="text-white font-semibold">Framework</span>
+              <p className="text-slate-400 mt-1">Next.js 14 App Router · TypeScript · Tailwind CSS</p>
+            </div>
+            <div className="p-3.5 rounded-lg bg-black border border-[#222630]">
+              <span className="text-white font-semibold">LLM gateway</span>
+              <p className="text-slate-400 mt-1">Bifrost via OpenAI SDK · auto failover · <code className="text-indigo-200 bg-white/10 px-1 rounded font-mono text-[11px]">lib/bifrost.ts</code></p>
+            </div>
+            <div className="p-3.5 rounded-lg bg-black border border-[#222630]">
+              <span className="text-white font-semibold">Live web search</span>
+              <p className="text-slate-400 mt-1">Tavily · topic routing · 24h cache · <code className="text-emerald-200 bg-white/10 px-1 rounded font-mono text-[11px]">lib/tavily.ts</code></p>
+            </div>
+            <div className="p-3.5 rounded-lg bg-black border border-[#222630]">
+              <span className="text-white font-semibold">Validation &amp; scoring</span>
+              <p className="text-slate-400 mt-1">Zod schemas · deterministic <code className="text-indigo-200 bg-white/10 px-1 rounded font-mono text-[11px]">lib/score.ts</code></p>
+            </div>
+            <div className="p-3.5 rounded-lg bg-black border border-[#222630]">
+              <span className="text-white font-semibold">Persistence</span>
+              <p className="text-slate-400 mt-1">Supabase Postgres + file fallback · <code className="text-indigo-200 bg-white/10 px-1 rounded font-mono text-[11px]">lib/db.ts</code></p>
+            </div>
+            <div className="p-3.5 rounded-lg bg-black border border-[#222630]">
+              <span className="text-white font-semibold">Streaming &amp; tests</span>
+              <p className="text-slate-400 mt-1">Server-Sent Events (SSE) · Vitest (20 tests, 7 suites)</p>
+            </div>
           </div>
         </div>
 

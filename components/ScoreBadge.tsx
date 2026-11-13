@@ -2,7 +2,7 @@ import { Check, AlertTriangle, X, Minus } from "lucide-react";
 
 interface ScoreBadgeProps {
   score?: number | null;
-  label?: "Fresh" | "Uncertain" | "Stale" | "Skipped";
+  label?: "Fresh" | "Uncertain" | "Stale" | "Skipped" | "True" | "False";
   verdict?: string | null;
   size?: "sm" | "md" | "lg";
   skipped?: boolean;
@@ -41,6 +41,30 @@ export function ScoreBadge({
     md: "px-3 py-1 text-xs font-bold tracking-wide",
     lg: "px-3.5 py-1.5 text-sm font-bold tracking-wide",
   };
+
+  if (status === "True") {
+    return (
+      <span
+        className={`inline-flex items-center gap-1.5 rounded-full font-mono bg-emerald-100 border border-emerald-300 text-emerald-900 shadow-2xs ${sizeClasses[size]}`}
+      >
+        <Check className="w-3.5 h-3.5 text-emerald-700 stroke-[2.5]" />
+        {typeof score === "number" && <span className="font-bold">{score}</span>}
+        <span>True</span>
+      </span>
+    );
+  }
+
+  if (status === "False") {
+    return (
+      <span
+        className={`inline-flex items-center gap-1.5 rounded-full font-mono bg-rose-100 border border-rose-300 text-rose-900 shadow-2xs ${sizeClasses[size]}`}
+      >
+        <X className="w-3.5 h-3.5 text-rose-700 stroke-[2.5]" />
+        {typeof score === "number" && <span className="font-bold">{score}</span>}
+        <span>False</span>
+      </span>
+    );
+  }
 
   if (status === "Fresh") {
     return (

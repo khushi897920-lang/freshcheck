@@ -15,6 +15,17 @@ export function ClaimCard({
   onSelect,
   isSelected = false,
 }: ClaimCardProps) {
+  const truthLabel =
+    claim.verification_mode === "truth"
+      ? claim.verdict === "CONTRADICTED"
+        ? "False"
+        : claim.verdict === "SUPPORTED"
+        ? "True"
+        : claim.verdict === "UNVERIFIABLE"
+        ? "Uncertain"
+        : undefined
+      : undefined;
+
   if (isLoading) {
     return (
       <div className="p-3.5 rounded-xl bg-white border border-[#E2E8F0] animate-pulse space-y-2.5">
@@ -53,6 +64,7 @@ export function ClaimCard({
         </div>
         <ScoreBadge
           score={claim.scoreBreakdown?.finalScore}
+          label={truthLabel}
           verdict={claim.verdict}
           skipped={claim.skipped}
           size="sm"

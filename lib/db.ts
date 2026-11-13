@@ -26,11 +26,12 @@ export interface ClaimRecord {
   end_offset?: number | null;
   claim_type: string;
   volatility: string;
+  verification_mode?: string | null;
   entity?: string | null;
   attribute?: string | null;
   asserted_value?: string | null;
   skipped?: boolean;
-  verdict?: "SUPPORTED" | "PARTIALLY_SUPPORTED" | "OUTDATED" | "UNVERIFIABLE" | null;
+  verdict?: "SUPPORTED" | "PARTIALLY_SUPPORTED" | "OUTDATED" | "CONTRADICTED" | "UNVERIFIABLE" | null;
   current_value?: string | null;
   explanation?: string | null;
   freshness_score?: number | null;

@@ -21,6 +21,8 @@ interface SidebarRightProps {
   inputText?: string;
   onSelectClaim?: (claim: DrawerClaimData) => void;
   onLoadBenchmark?: (type: string) => void;
+  onRefresh?: () => void;
+  fallbackUsed?: boolean;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -32,10 +34,13 @@ export function SidebarRight({
   inputText,
   onSelectClaim,
   onLoadBenchmark,
+  onRefresh,
+  fallbackUsed = false,
   isOpen,
   onClose,
 }: SidebarRightProps) {
   const [activeTab, setActiveTab] = useState<"Reports" | "Evidence" | "Usage">("Reports");
+  const [subTab, setSubTab] = useState<"audits" | "logs">("audits");
   const [downloaded, setDownloaded] = useState(false);
 
   if (!isOpen) return null;
@@ -104,8 +109,10 @@ export function SidebarRight({
             <div className="flex items-center gap-1">
               <button
                 type="button"
-                className="p-1.5 rounded text-[#94A3B8] hover:text-[#0F172A] cursor-pointer"
-                title="Refresh"
+                onClick={onRefresh}
+                disabled={!onRefresh}
+                className="p-1.5 rounded text-[#94A3B8] hover:text-[#0F172A] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                title="Refresh current report"
               >
                 <RotateCw className="w-3.5 h-3.5" />
               </button>
@@ -124,13 +131,23 @@ export function SidebarRight({
           <div className="flex items-center gap-1.5 bg-[#EDF2F7] p-1 rounded-lg text-xs font-medium text-[#64748B]">
             <button
               type="button"
-              className="flex-1 py-1 rounded-md text-center bg-white text-[#0F172A] shadow-xs cursor-pointer font-bold"
+              onClick={() => setSubTab("audits")}
+              className={`flex-1 py-1 rounded-md text-center cursor-pointer ${
+                subTab === "audits"
+                  ? "bg-white text-[#0F172A] shadow-xs font-bold"
+                  : "hover:text-[#0F172A]"
+              }`}
             >
               Audits &amp; Proofs
             </button>
             <button
               type="button"
-              className="flex-1 py-1 rounded-md text-center hover:text-[#0F172A] cursor-pointer"
+              onClick={() => setSubTab("logs")}
+              className={`flex-1 py-1 rounded-md text-center cursor-pointer ${
+                subTab === "logs"
+                  ? "bg-white text-[#0F172A] shadow-xs font-bold"
+                  : "hover:text-[#0F172A]"
+              }`}
             >
               Live Logs
             </button>
@@ -156,7 +173,7 @@ export function SidebarRight({
           </div>
 
           {/* Tab 1: Reports Section */}
-          {activeTab === "Reports" && (
+          {activeTab === "Reports" && subTab === "audits" && (
             <>
               {/* YOUR REPORTS */}
               <div className="space-y-2">
@@ -262,6 +279,53 @@ export function SidebarRight({
                 </div>
               </div>
             </>
+          )}
+
+          {/* Tab 1b: Live Logs (real event log derived from the latest run) */}
+          {activeTab === "Reports" && subTab === "logs" && (
+            <div className="space-y-2">
+              <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider px-1 block">
+                Live Event Log
+              </span>
+              <div className="p-3.5 rounded-xl bg-white border border-[#E2E8F0] space-y-2">
+                {claims.length === 0 ? (
+                  <p className="text-xs text-[#64748B]">
+                    No verification has been run yet. Run a check from the workspace to stream
+                    live pipeline events here.
+                  </p>
+                ) : (
+                  <ul className="space-y-1.5 text-[11px] font-mono text-[#334155]">
+                    <li className="flex items-center justify-between">
+                      <span className="text-slate-500">[1] Extract &amp; classify claims</span>
+                      <span className="font-bold text-[#0F172A]">{claims.length} found</span>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span className="text-slate-500">[2] Search live web (Tavily)</span>
+                      <span className="font-bold text-[#0F172A]">
+                        {claims.reduce((acc, c) => acc + (c.evidence?.length ?? 0), 0)} sources
+                      </span>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span className="text-slate-500">[3] Judge evidence (Bifrost)</span>
+                      <span className="font-bold text-[#0F172A]">
+                        {freshCount} fresh · {staleCount} stale
+                      </span>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span className="text-slate-500">[4] Deterministic score</span>
+                      <span className="font-bold text-[#0F172A]">
+                        {overallScore ?? "--"}/100
+                      </span>
+                    </li>
+                    {fallbackUsed && (
+                      <li className="text-amber-700 bg-amber-50 px-2 py-1 rounded border border-amber-200">
+                        ⚠ Bifrost failed over to the fallback model
+                      </li>
+                    )}
+                  </ul>
+                )}
+              </div>
+            </div>
           )}
 
           {/* Tab 2: Evidence List */}

@@ -2,6 +2,7 @@ import { executeBifrostCompletion } from "./bifrost";
 import {
   ExtractedClaim,
   ExtractionResponseSchema,
+  VerificationMode,
   Volatility,
 } from "./schemas";
 import { nanoid } from "nanoid";
@@ -16,6 +17,7 @@ export const PROMPT_A_SYSTEM = `You extract factual claims from an AI-generated 
       "end": 45,
       "claim_type": "pricing" | "version" | "leadership" | "law_regulation" | "product_availability" | "statistic" | "stable_fact",
       "volatility": "high" | "medium" | "low",
+      "verification_mode": "freshness" | "truth" | "skip",
       "entity": "subject entity or null",
       "attribute": "fact attribute or null",
       "asserted_value": "asserted value or null"
@@ -24,6 +26,10 @@ export const PROMPT_A_SYSTEM = `You extract factual claims from an AI-generated 
 }
 Split the text into atomic, checkable factual statements. Ignore opinions, advice and instructions.
 volatility: high if it changes within months, medium if within years, low if rarely.
+verification_mode:
+- "freshness" if the claim is about something time-sensitive (prices, versions, leadership, laws, availability).
+- "truth" if the claim is a static factual statement that can be checked as true or false but does not change over time (e.g. "the earth is flat", "water boils at 100 C").
+- "skip" if the statement is an opinion, advice, instruction, or cannot be objectively verified.
 If the user supplied an answer date, use it only as context. Do not verify anything.`;
 
 /**
@@ -125,26 +131,36 @@ export async function extractClaims(
   });
 
   // 2. Classify and rank:
-  // Stable facts / low volatility are marked skipped
-  // Keep high and medium volatility, ranked high first, max 8.
+  // - "freshness" claims (high/medium volatility) → verified for recency
+  // - "truth" claims (checkable static facts) → verified for truthfulness
+  // - everything else (opinions, instructions, unverifiable) → skipped
   const timeSensitive = processedWithOffsets.filter(
     (c) => c.volatility === "high" || c.volatility === "medium"
   );
-  const stableOrLow = processedWithOffsets.filter(
-    (c) => c.volatility === "low" || c.claim_type === "stable_fact"
+  const truthClaims = processedWithOffsets.filter(
+    (c) =>
+      c.verification_mode === "truth" &&
+      c.volatility !== "high" &&
+      c.volatility !== "medium"
+  );
+  const restClaims = processedWithOffsets.filter(
+    (c) => !timeSensitive.includes(c) && !truthClaims.includes(c)
   );
 
-  // Sort high first, then medium
+  // Sort freshness claims: high first, then medium
   timeSensitive.sort((a, b) => {
     if (a.volatility === "high" && b.volatility !== "high") return -1;
     if (b.volatility === "high" && a.volatility !== "high") return 1;
     return 0;
   });
 
+  // Freshness claims take priority, then truth claims. Cap at maxClaims total.
+  const ranked = [...timeSensitive, ...truthClaims];
+
   const keptClaims: ProcessedClaim[] = [];
   const excessClaims: ProcessedClaim[] = [];
 
-  timeSensitive.forEach((claim, idx) => {
+  ranked.forEach((claim, idx) => {
     if (idx < maxClaims) {
       keptClaims.push({ ...claim, skipped: false });
     } else {
@@ -152,13 +168,13 @@ export async function extractClaims(
     }
   });
 
-  const skippedStable: ProcessedClaim[] = stableOrLow.map((c) => ({
+  const skippedRest: ProcessedClaim[] = restClaims.map((c) => ({
     ...c,
     skipped: true,
   }));
 
   // Re-sort in text appearance order (by start offset) so UI highlight mapping is clean
-  const finalClaims = [...keptClaims, ...excessClaims, ...skippedStable].sort(
+  const finalClaims = [...keptClaims, ...excessClaims, ...skippedRest].sort(
     (a, b) => a.start - b.start
   );
 
@@ -173,25 +189,42 @@ export async function extractClaims(
  * Deterministic sentence-level heuristic extractor for offline/fallback scenarios
  */
 function heuristicExtract(text: string): ExtractedClaim[] {
-  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-  return sentences.map((sentence, idx) => {
+  // Split on sentence boundaries without breaking "Node.js", "3.8", "GPT-3.5", "$0.002", etc.
+  const sentences = text
+    .split(/(?<=[.!?])\s+(?=[A-Z0-9])/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+  const parts = sentences.length > 0 ? sentences : [text];
+
+  return parts.map((sentence, idx) => {
     const trimmed = sentence.trim();
     const hasVersion = /version|release|node|python|v\d+/i.test(trimmed);
     const hasPrice = /\$|price|pricing|tier|cost/i.test(trimmed);
     const hasLeader = /ceo|founder|leads|president/i.test(trimmed);
+    const hasCopula = /\b(is|are|was|were|has|have)\b/i.test(trimmed);
+    const hasOpinionWord = /\b(best|should|recommend|good|bad|better|awesome|love|hate|prefer)\b/i.test(trimmed);
 
     let claim_type: ExtractedClaim["claim_type"] = "stable_fact";
     let volatility: Volatility = "low";
+    let verification_mode: VerificationMode = "skip";
 
     if (hasPrice) {
       claim_type = "pricing";
       volatility = "high";
+      verification_mode = "freshness";
     } else if (hasVersion) {
       claim_type = "version";
       volatility = "high";
+      verification_mode = "freshness";
     } else if (hasLeader) {
       claim_type = "leadership";
       volatility = "medium";
+      verification_mode = "freshness";
+    } else if (hasCopula && !hasOpinionWord) {
+      // Static factual statement ("X is Y") worth a truth check.
+      claim_type = "statistic";
+      volatility = "low";
+      verification_mode = "truth";
     }
 
     return {
@@ -199,6 +232,7 @@ function heuristicExtract(text: string): ExtractedClaim[] {
       text: trimmed,
       claim_type,
       volatility,
+      verification_mode,
       entity: null,
       attribute: null,
       asserted_value: null,

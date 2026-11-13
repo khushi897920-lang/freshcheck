@@ -20,6 +20,29 @@ const BIFROST_API_KEY = process.env.BIFROST_API_KEY || "bifrost-local";
 const MODEL_PRIMARY = process.env.MODEL_PRIMARY || "gemini-1.5-flash";
 const MODEL_FALLBACK = process.env.MODEL_FALLBACK || "llama-3.1-8b-instant";
 
+/**
+ * Robustly parses a JSON object from an LLM response. Models sometimes wrap
+ * JSON in markdown code fences or prepend prose — extract the first {...} block.
+ */
+function extractJsonObject(rawText: string): unknown {
+  let text = rawText.trim();
+
+  // Strip markdown code fences if present: ```json ... ```
+  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fenceMatch) {
+    text = fenceMatch[1].trim();
+  }
+
+  // Fall back to the first balanced-ish { ... } span
+  const firstBrace = text.indexOf("{");
+  const lastBrace = text.lastIndexOf("}");
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    text = text.slice(firstBrace, lastBrace + 1);
+  }
+
+  return JSON.parse(text);
+}
+
 // Create OpenAI client pointed at Bifrost
 export function getBifrostClient(timeoutMs = 12000): OpenAI {
   return new OpenAI({
@@ -83,7 +106,7 @@ export async function executeBifrostCompletion<T = string>(
   // Parse and validate with Zod if schema provided
   if (schema) {
     try {
-      const parsedJson = JSON.parse(rawText);
+      const parsedJson = extractJsonObject(rawText);
       const validatedData = schema.parse(parsedJson);
       return {
         data: validatedData,
@@ -96,7 +119,7 @@ export async function executeBifrostCompletion<T = string>(
       console.warn(`[Bifrost] Zod validation failed. Attempting single retry with model ${modelUsed}...`);
       try {
         const retryText = await callModel(modelUsed);
-        const retryJson = JSON.parse(retryText);
+        const retryJson = extractJsonObject(retryText);
         const retryValidated = schema.parse(retryJson);
         return {
           data: retryValidated,

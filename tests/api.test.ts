@@ -44,6 +44,57 @@ describe("Phase 7 — Streaming SSE API & Saved Check Retrieval", () => {
     expect(fullStreamText).toContain("event: done");
   });
 
+  it("truth-checks static factual statements instead of skipping them (no false 100)", async () => {
+    const req = new NextRequest("http://localhost:3000/api/check", {
+      method: "POST",
+      body: JSON.stringify({ text: "Earth is flat." }),
+    });
+
+    const response = await POST(req);
+    expect(response.status).toBe(200);
+
+    const reader = response.body?.getReader();
+    let fullStreamText = "";
+    const decoder = new TextDecoder();
+
+    if (reader) {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        fullStreamText += decoder.decode(value);
+      }
+    }
+
+    expect(fullStreamText).toContain("event: done");
+    expect(fullStreamText).toContain('"verification_mode":"truth"');
+    expect(fullStreamText).not.toContain('"overallScore":100');
+  });
+
+  it("returns a null overall score when only opinions/instructions are detected", async () => {
+    const req = new NextRequest("http://localhost:3000/api/check", {
+      method: "POST",
+      body: JSON.stringify({ text: "React is the best framework for building apps." }),
+    });
+
+    const response = await POST(req);
+    expect(response.status).toBe(200);
+
+    const reader = response.body?.getReader();
+    let fullStreamText = "";
+    const decoder = new TextDecoder();
+
+    if (reader) {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        fullStreamText += decoder.decode(value);
+      }
+    }
+
+    expect(fullStreamText).toContain("event: done");
+    expect(fullStreamText).toContain('"overallScore":null');
+  });
+
   it("returns 404 for non-existent check id", async () => {
     const req = new NextRequest("http://localhost:3000/api/check/fake-id-123", {
       method: "GET",

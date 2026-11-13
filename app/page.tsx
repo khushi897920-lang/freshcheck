@@ -24,6 +24,9 @@ export default function FreshCheckApp() {
   } | null>(null);
   const [fallbackUsed, setFallbackUsed] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [resultMessage, setResultMessage] = useState<string | null>(null);
+  const [modelUsed, setModelUsed] = useState<string | null>(null);
+  const [tavilyCreditsUsed, setTavilyCreditsUsed] = useState<number>(0);
   const [selectedClaim, setSelectedClaim] = useState<DrawerClaimData | null>(null);
   const [checkId, setCheckId] = useState<string | null>(null);
   const [history, setHistory] = useState<any[]>([]);
@@ -110,6 +113,7 @@ export default function FreshCheckApp() {
           volatility: c.volatility,
           entity: c.entity,
           attribute: c.attribute,
+          verification_mode: c.verification_mode ?? "freshness",
           skipped: c.skipped,
           verdict: c.verdict || (c.skipped ? "SUPPORTED" : null),
           current_value: c.current_value,
@@ -163,6 +167,9 @@ export default function FreshCheckApp() {
     setOverallScore(null);
     setSummaryCounts(null);
     setErrorMessage(null);
+    setResultMessage(null);
+    setModelUsed(null);
+    setTavilyCreditsUsed(0);
     setSelectedClaim(null);
     setCheckId(null);
     setStep("idle");
@@ -214,6 +221,9 @@ export default function FreshCheckApp() {
     setIsChecking(true);
     setStep("extracting");
     setErrorMessage(null);
+    setResultMessage(null);
+    setModelUsed(null);
+    setTavilyCreditsUsed(0);
     setOverallScore(null);
     setSummaryCounts(null);
     setClaims([]);
@@ -282,6 +292,7 @@ export default function FreshCheckApp() {
                 volatility: c.volatility,
                 entity: c.entity,
                 attribute: c.attribute,
+                verification_mode: c.verification_mode ?? "freshness",
                 skipped: c.skipped,
                 verdict: c.skipped ? "SUPPORTED" : null,
                 scoreBreakdown: null,
@@ -313,6 +324,9 @@ export default function FreshCheckApp() {
             setOverallScore(parsed.overallScore);
             setSummaryCounts(parsed.summaryCounts);
             setFallbackUsed(parsed.fallbackUsed || false);
+            setResultMessage(parsed.message || null);
+            setModelUsed(parsed.modelUsed || null);
+            setTavilyCreditsUsed(parsed.tavilyCreditsUsed || 0);
             setStep("done");
 
             if (parsed.checkId) {
@@ -363,6 +377,9 @@ export default function FreshCheckApp() {
         summaryCounts={summaryCounts}
         fallbackUsed={fallbackUsed}
         errorMessage={errorMessage}
+        resultMessage={resultMessage}
+        modelUsed={modelUsed}
+        tavilyCreditsUsed={tavilyCreditsUsed}
         selectedClaim={selectedClaim}
         onSelectClaim={setSelectedClaim}
         onCheckFreshness={handleCheckFreshness}
@@ -383,6 +400,8 @@ export default function FreshCheckApp() {
         inputText={submittedText || text}
         onSelectClaim={setSelectedClaim}
         onLoadBenchmark={handleLoadBenchmark}
+        onRefresh={checkId ? () => handleSelectCheck(checkId) : undefined}
+        fallbackUsed={fallbackUsed}
       />
 
       {/* Slide-out Evidence Drawer */}

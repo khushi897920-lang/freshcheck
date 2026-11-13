@@ -5,6 +5,8 @@ import { ProcessedClaim } from "./extract";
 import {
   JudgeResponse,
   JudgeResponseSchema,
+  TruthJudgeResponse,
+  TruthJudgeResponseSchema,
   Verdict,
 } from "./schemas";
 
@@ -68,6 +70,37 @@ export function buildSearchQuery(claim: ProcessedClaim): {
   return { query, topic };
 }
 
+export const PROMPT_T_SYSTEM = `You judge whether a factual statement is true or false using only the evidence snippets provided. Return only JSON:
+{
+  "verdict": "SUPPORTED" | "CONTRADICTED" | "UNVERIFIABLE",
+  "current_value": "the verified truth or null",
+  "explanation": "max 40 words explanation",
+  "supporting_urls": ["url1"],
+  "newest_evidence_date": "YYYY-MM-DD or null",
+  "official_source": boolean,
+  "sources_agree": boolean,
+  "conflict": boolean
+}
+Choose a verdict:
+- SUPPORTED if the evidence confirms the statement is true.
+- CONTRADICTED if the evidence shows the statement is false.
+- UNVERIFIABLE if the evidence is missing or unclear.
+Never use knowledge outside the evidence. Never invent URLs.`;
+
+/**
+ * Builds a fact-check query for static factual statements ("X is Y").
+ */
+export function buildTruthQuery(claim: ProcessedClaim): {
+  query: string;
+  topic: "general";
+} {
+  const cleanText = claim.text
+    .replace(/["'?!.,;]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return { query: `${cleanText} fact check`, topic: "general" };
+}
+
 /**
  * Verifies a single claim against Tavily evidence and judges it through Bifrost.
  */
@@ -92,8 +125,12 @@ export async function verifyAndJudgeClaim(
     };
   }
 
+  const isTruthCheck = claim.verification_mode === "truth";
+
   // 1. Build search query and retrieve Tavily evidence
-  const { query, topic } = buildSearchQuery(claim);
+  const { query, topic } = isTruthCheck
+    ? buildTruthQuery(claim)
+    : buildSearchQuery(claim);
   const evidence = await searchTavily({ query, topic, maxResults: 5 }, claim.entity);
 
   // Ground rule 4 (Honesty rule):
@@ -123,48 +160,89 @@ export async function verifyAndJudgeClaim(
     )
     .join("\n\n");
 
-  const promptUserContent = `Claim text: "${claim.text}"\nEntity: ${claim.entity || "N/A"}\nAttribute: ${claim.attribute || "N/A"}\nAsserted Value: ${claim.asserted_value || "N/A"}\n\nEvidence Snippets:\n${evidenceSnippetText}`;
-
   let judgeData: JudgeResponse;
   let modelUsed = "bifrost";
 
-  try {
-    const completion = await executeBifrostCompletion(
-      {
-        messages: [
-          { role: "system", content: PROMPT_B_SYSTEM },
-          { role: "user", content: promptUserContent },
-        ],
-        jsonMode: true,
-      },
-      JudgeResponseSchema
-    );
+  if (isTruthCheck) {
+    // Truth-check path: judge whether a static factual statement is true or false.
+    const promptUserContent = `Statement: "${claim.text}"\n\nEvidence Snippets:\n${evidenceSnippetText}`;
+    try {
+      const completion = await executeBifrostCompletion(
+        {
+          messages: [
+            { role: "system", content: PROMPT_T_SYSTEM },
+            { role: "user", content: promptUserContent },
+          ],
+          jsonMode: true,
+        },
+        TruthJudgeResponseSchema
+      );
 
-    const data = completion.data as JudgeResponse;
-    judgeData = {
-      verdict: data.verdict,
-      current_value: data.current_value || null,
-      explanation: data.explanation,
-      supporting_urls: data.supporting_urls || [],
-      newest_evidence_date: data.newest_evidence_date || null,
-      official_source: !!data.official_source,
-      sources_agree: !!data.sources_agree,
-      conflict: !!data.conflict,
-    };
-    modelUsed = completion.modelUsed;
-  } catch (err) {
-    console.warn(`[Judge] LLM judgment failed for claim "${claim.text}":`, err);
-    // Ground Rule 5: Mark claim UNVERIFIABLE instead of crashing
-    judgeData = {
-      verdict: "UNVERIFIABLE",
-      current_value: null,
-      explanation: "Evaluation failed to parse structured judgment.",
-      supporting_urls: [],
-      newest_evidence_date: null,
-      official_source: false,
-      sources_agree: false,
-      conflict: false,
-    };
+      const data = completion.data as TruthJudgeResponse;
+      judgeData = {
+        verdict: data.verdict,
+        current_value: data.current_value || null,
+        explanation: data.explanation,
+        supporting_urls: data.supporting_urls || [],
+        newest_evidence_date: data.newest_evidence_date || null,
+        official_source: !!data.official_source,
+        sources_agree: !!data.sources_agree,
+        conflict: !!data.conflict,
+      };
+      modelUsed = completion.modelUsed;
+    } catch (err) {
+      console.warn(`[Judge] Truth judgment failed for claim "${claim.text}":`, err);
+      judgeData = {
+        verdict: "UNVERIFIABLE",
+        current_value: null,
+        explanation: "Truth evaluation failed to parse structured judgment.",
+        supporting_urls: [],
+        newest_evidence_date: null,
+        official_source: false,
+        sources_agree: false,
+        conflict: false,
+      };
+    }
+  } else {
+    const promptUserContent = `Claim text: "${claim.text}"\nEntity: ${claim.entity || "N/A"}\nAttribute: ${claim.attribute || "N/A"}\nAsserted Value: ${claim.asserted_value || "N/A"}\n\nEvidence Snippets:\n${evidenceSnippetText}`;
+    try {
+      const completion = await executeBifrostCompletion(
+        {
+          messages: [
+            { role: "system", content: PROMPT_B_SYSTEM },
+            { role: "user", content: promptUserContent },
+          ],
+          jsonMode: true,
+        },
+        JudgeResponseSchema
+      );
+
+      const data = completion.data as JudgeResponse;
+      judgeData = {
+        verdict: data.verdict,
+        current_value: data.current_value || null,
+        explanation: data.explanation,
+        supporting_urls: data.supporting_urls || [],
+        newest_evidence_date: data.newest_evidence_date || null,
+        official_source: !!data.official_source,
+        sources_agree: !!data.sources_agree,
+        conflict: !!data.conflict,
+      };
+      modelUsed = completion.modelUsed;
+    } catch (err) {
+      console.warn(`[Judge] LLM judgment failed for claim "${claim.text}":`, err);
+      // Ground Rule 5: Mark claim UNVERIFIABLE instead of crashing
+      judgeData = {
+        verdict: "UNVERIFIABLE",
+        current_value: null,
+        explanation: "Evaluation failed to parse structured judgment.",
+        supporting_urls: [],
+        newest_evidence_date: null,
+        official_source: false,
+        sources_agree: false,
+        conflict: false,
+      };
+    }
   }
 
   // Filter supporting URLs to strictly those that exist in Tavily evidence (anti-hallucination)

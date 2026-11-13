@@ -32,6 +32,7 @@ export function computeClaimScore(
       baseScore = 60;
       break;
     case "OUTDATED":
+    case "CONTRADICTED":
       baseScore = 10;
       break;
     case "UNVERIFIABLE":
@@ -40,12 +41,13 @@ export function computeClaimScore(
       break;
   }
 
-  // 2. Add 5 if official source
-  const officialSourceBonus = factors.officialSource ? 5 : 0;
+  // 2. Add 5 if official source — only when sources actually support the claim
+  const isSupported = verdict === "SUPPORTED" || verdict === "PARTIALLY_SUPPORTED";
+  const officialSourceBonus = isSupported && factors.officialSource ? 5 : 0;
 
-  // 3. Add 5 if two or more independent domains agree
+  // 3. Add 5 if two or more independent domains agree (corroboration implies support)
   const multiDomainBonus =
-    (factors.independentDomainsCount ?? 0) >= 2 ? 5 : 0;
+    isSupported && (factors.independentDomainsCount ?? 0) >= 2 ? 5 : 0;
 
   // 4. Subtract 10 if newest supporting evidence is older than 12 months and volatility is high
   let stalenessPenalty = 0;
@@ -104,7 +106,8 @@ export function computeOverallScore(
   let totalWeight = 0;
 
   for (const claim of activeClaims) {
-    const weight = claim.volatility === "high" ? 3 : 2; // high 3, medium 2 (low skipped)
+    // high volatility 3, medium 2, low (truth-checked static facts) 1
+    const weight = claim.volatility === "high" ? 3 : claim.volatility === "medium" ? 2 : 1;
     weightedSum += claim.score * weight;
     totalWeight += weight;
   }

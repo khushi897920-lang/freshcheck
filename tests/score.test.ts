@@ -32,6 +32,13 @@ describe("computeClaimScore", () => {
     expect(res.stalenessPenalty).toBe(10);
   });
 
+  it("scores CONTRADICTED truth claims as stale/false", () => {
+    const res = computeClaimScore("CONTRADICTED", { volatility: "low" });
+    expect(res.baseScore).toBe(10);
+    expect(res.finalScore).toBe(10);
+    expect(res.label).toBe("Stale");
+  });
+
   it("applies conflict penalty and labels correctly", () => {
     const res = computeClaimScore("PARTIALLY_SUPPORTED", {
       volatility: "medium",

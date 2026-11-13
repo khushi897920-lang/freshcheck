@@ -13,7 +13,8 @@ export interface DrawerClaimData {
   volatility?: string;
   entity?: string | null;
   attribute?: string | null;
-  verdict?: "SUPPORTED" | "PARTIALLY_SUPPORTED" | "OUTDATED" | "UNVERIFIABLE" | null;
+  verification_mode?: "freshness" | "truth" | "skip";
+  verdict?: "SUPPORTED" | "PARTIALLY_SUPPORTED" | "OUTDATED" | "CONTRADICTED" | "UNVERIFIABLE" | null;
   current_value?: string | null;
   explanation?: string | null;
   scoreBreakdown?: {

@@ -25,7 +25,6 @@ import {
   Minimize2,
   Maximize2,
   RotateCw,
-  CheckCircle2,
   ShieldCheck,
 } from "lucide-react";
 import { ProgressSteps, PipelineStep } from "./ProgressSteps";
@@ -55,6 +54,9 @@ interface CenterWorkspaceProps {
   } | null;
   fallbackUsed: boolean;
   errorMessage: string | null;
+  resultMessage?: string | null;
+  modelUsed?: string | null;
+  tavilyCreditsUsed?: number;
   selectedClaim: DrawerClaimData | null;
   onSelectClaim: (claim: DrawerClaimData) => void;
   onCheckFreshness: () => void;
@@ -78,6 +80,9 @@ export function CenterWorkspace({
   summaryCounts,
   fallbackUsed,
   errorMessage,
+  resultMessage,
+  modelUsed = null,
+  tavilyCreditsUsed = 0,
   selectedClaim,
   onSelectClaim,
   onCheckFreshness,
@@ -145,6 +150,52 @@ export function CenterWorkspace({
 
   const activeClaims = claims.filter((c) => !c.skipped);
   const allClaimsSkipped = claims.length > 0 && activeClaims.length === 0;
+
+  const PIPELINE_STAGES = [
+    { key: "extracting", label: "Extract & classify claims" },
+    { key: "searching", label: "Search live web (Tavily)" },
+    { key: "judging", label: "Judge evidence (Bifrost)" },
+    { key: "scoring", label: "Compute freshness score" },
+  ] as const;
+
+  const stepIndex = (s: PipelineStep): number => {
+    switch (s) {
+      case "extracting":
+        return 0;
+      case "searching":
+        return 1;
+      case "judging":
+        return 2;
+      case "scoring":
+        return 3;
+      default:
+        return -1;
+    }
+  };
+
+  const guidancePanel = (
+    <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 leading-relaxed space-y-2">
+      <p className="font-semibold">What FreshCheck verifies:</p>
+      <p className="text-amber-800">
+        Facts that change over time — pricing tiers, version numbers, company leadership, laws
+        &amp; regulations, and product availability. It does not judge whether a stable statement
+        (like &ldquo;earth is flat&rdquo;) is true or false.
+      </p>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="text-amber-800 font-semibold">Try a sample:</span>
+        {SAMPLE_ANSWERS.map((s) => (
+          <button
+            key={s.id}
+            type="button"
+            onClick={() => onSelectSample(s)}
+            className="text-[11px] px-2.5 py-1 rounded-md bg-white border border-amber-300 text-amber-900 font-semibold hover:bg-amber-100 transition-colors cursor-pointer"
+          >
+            {s.title}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <main className="flex-1 bg-white rounded-2xl shadow-window m-1.5 sm:m-2.5 flex flex-col justify-between overflow-hidden border border-[#E2E8F0] relative font-sans min-w-0 max-w-full h-[calc(100dvh-12px)] sm:h-[calc(100dvh-20px)]">
@@ -249,11 +300,11 @@ export function CenterWorkspace({
             <div className="p-6 rounded-2xl bg-white border border-[#CBD5E1] shadow-sm space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wider">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Answer &amp; Verification</span>
+                  <ShieldCheck className="w-4 h-4 text-amber-600" />
+                  <span>Analysis Complete</span>
                 </div>
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  100% Stable
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                  No time-sensitive claims
                 </span>
               </div>
 
@@ -261,12 +312,14 @@ export function CenterWorkspace({
                 {submittedText}
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 flex items-center gap-2.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span>
-                  No conflicting or outdated claims detected. This response consists of stable factual statements.
-                </span>
-              </div>
+              {resultMessage ? (
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 flex items-start gap-2.5">
+                  <ShieldCheck className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <span>{resultMessage}</span>
+                </div>
+              ) : (
+                guidancePanel
+              )}
             </div>
           </div>
         )}
@@ -334,10 +387,16 @@ export function CenterWorkspace({
               </button>
             </div>
 
-            {/* Empty State: All stable facts */}
+            {/* Empty State: All stable / skipped facts — no score was computed */}
             {allClaimsSkipped && (
-              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 text-center font-medium">
-                No time-sensitive claims found. This answer looks stable.
+              <div className="space-y-3">
+                {resultMessage && (
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 flex items-start gap-2.5">
+                    <ShieldCheck className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <span>{resultMessage}</span>
+                  </div>
+                )}
+                {guidancePanel}
               </div>
             )}
 
@@ -557,6 +616,8 @@ export function CenterWorkspace({
                 )}
               </div>
 
+              {inputTab === "chat" ? (
+                <>
               {/* Clean Input Textarea with auto-expand */}
               <textarea
                 ref={expandedTextareaRef}
@@ -658,6 +719,78 @@ export function CenterWorkspace({
                   )}
                 </button>
               </div>
+                </>
+              ) : (
+                <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] space-y-3 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[#0F172A] flex items-center gap-1.5">
+                      <SlidersHorizontal className="w-3.5 h-3.5 text-[#6366F1]" />
+                      Pipeline Monitor
+                    </span>
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-[#64748B]">
+                      {isChecking
+                        ? `stage: ${step}`
+                        : claims.length > 0
+                        ? "complete"
+                        : "idle"}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    {PIPELINE_STAGES.map((stage, idx) => {
+                      const currentIndex = stepIndex(step);
+                      const isDone = !isChecking && claims.length > 0;
+                      const isCurrent = isChecking && currentIndex === idx;
+                      const isPast = isChecking && currentIndex > idx;
+                      return (
+                        <div
+                          key={stage.key}
+                          className={`flex items-center gap-2 ${
+                            isCurrent ? "text-[#0F172A] font-semibold" : isPast || isDone ? "text-[#059669]" : "text-slate-400"
+                          }`}
+                        >
+                          {isPast || isDone ? (
+                            <Check className="w-3.5 h-3.5 text-[#10B981]" />
+                          ) : isCurrent ? (
+                            <RotateCw className="w-3.5 h-3.5 text-[#6366F1] animate-spin" />
+                          ) : (
+                            <span className="w-3.5 h-3.5 rounded-full border-2 border-slate-300 inline-block" />
+                          )}
+                          <span>{stage.label}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#E2E8F0] text-[11px]">
+                    <div>
+                      <span className="text-[#64748B]">Model:</span>{" "}
+                      <span className="font-bold">{modelUsed || "—"}</span>
+                    </div>
+                    <div>
+                      <span className="text-[#64748B]">Fallback:</span>{" "}
+                      <span className="font-bold">{fallbackUsed ? "Yes" : "No"}</span>
+                    </div>
+                    <div>
+                      <span className="text-[#64748B]">Tavily credits:</span>{" "}
+                      <span className="font-bold">{tavilyCreditsUsed}</span>
+                    </div>
+                    <div>
+                      <span className="text-[#64748B]">Claims:</span>{" "}
+                      <span className="font-bold">
+                        {activeClaims.length} active / {claims.length - activeClaims.length} skipped
+                      </span>
+                    </div>
+                  </div>
+
+                  {!isChecking && claims.length === 0 && (
+                    <p className="text-[11px] text-[#64748B] leading-relaxed">
+                      Switch to <strong>Verify Answer</strong> and run a check to watch this
+                      pipeline stream live: extract → search → judge → score.
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

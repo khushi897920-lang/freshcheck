@@ -103,6 +103,24 @@ export async function POST(req: NextRequest) {
             }
           }
 
+          // If the user asked a question but the gateway couldn't answer it,
+          // do not treat the question text itself as a factual claim to verify.
+          if (isQuestionOrQuery(text) && !generatedAnswer) {
+            sendEvent("done", {
+              checkId: null,
+              overallScore: null,
+              summaryCounts: { fresh: 0, uncertain: 0, stale: 0, skipped: 0 },
+              resultKind: "question_unanswered",
+              message:
+                "We couldn't generate an answer for this question because the AI gateway is unreachable. FreshCheck verifies time-sensitive facts (prices, versions, leadership, regulations) — paste an AI answer like that instead.",
+              modelUsed: null,
+              fallbackUsed: false,
+              tavilyCreditsUsed: 0,
+            });
+            controller.close();
+            return;
+          }
+
           // 1. Create initial check in database
           const initialCheck = await createCheck({
             session_id: sessionId || null,
@@ -122,15 +140,17 @@ export async function POST(req: NextRequest) {
             // Save final check status
             await updateCheck(initialCheck.id, {
               status: "done",
-              overall_score: 100,
+              overall_score: null,
               tavily_credits_used: 0,
             });
 
             sendEvent("done", {
               checkId: initialCheck.id,
-              overallScore: 100,
+              overallScore: null,
               summaryCounts: { fresh: 0, uncertain: 0, stale: 0, skipped: 0 },
-              message: "No time-sensitive claims were detected.",
+              resultKind: "no_time_sensitive_claims",
+              message:
+                "No time-sensitive claims were detected. FreshCheck verifies facts that change over time (prices, versions, leadership, regulations) — not whether a static statement is true or false.",
               modelUsed: extraction.modelUsed,
               fallbackUsed: extraction.fallbackUsed,
               tavilyCreditsUsed: 0,
@@ -150,6 +170,7 @@ export async function POST(req: NextRequest) {
               end_offset: claim.end,
               claim_type: claim.claim_type,
               volatility: claim.volatility,
+              verification_mode: claim.verification_mode || "freshness",
               entity: claim.entity || null,
               attribute: claim.attribute || null,
               asserted_value: claim.asserted_value || null,
@@ -255,8 +276,13 @@ export async function POST(req: NextRequest) {
             }
           }
 
-          // 4. Compute overall answer score and summary counts
-          const overallScore = computeOverallScore(verifiedResults);
+          // 4. Compute overall answer score and summary counts.
+          // Only produce a numeric score when at least one claim was actually
+          // verified against live evidence — never report a misleading 100 for
+          // input that was entirely skipped (e.g. "earth is flat").
+          const activeVerified = verifiedResults.filter((r) => !r.skipped);
+          const overallScore =
+            activeVerified.length === 0 ? null : computeOverallScore(verifiedResults);
 
           const summaryCounts = {
             fresh: verifiedResults.filter((r) => !r.skipped && r.score >= 75).length,
@@ -277,6 +303,11 @@ export async function POST(req: NextRequest) {
             checkId: initialCheck.id,
             overallScore,
             summaryCounts,
+            resultKind: overallScore === null ? "no_time_sensitive_claims" : "scored",
+            message:
+              overallScore === null
+                ? "No time-sensitive claims were found. FreshCheck verifies facts that change over time (prices, versions, leadership, regulations) — not whether a static statement is true or false."
+                : null,
             modelUsed: extraction.modelUsed,
             fallbackUsed: extraction.fallbackUsed,
             tavilyCreditsUsed,
