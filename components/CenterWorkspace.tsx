@@ -304,7 +304,7 @@ export function CenterWorkspace({
                   <span>Analysis Complete</span>
                 </div>
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                  No time-sensitive claims
+                  {overallScore !== null ? `Archived Report (${overallScore}/100)` : "No time-sensitive claims"}
                 </span>
               </div>
 
@@ -312,7 +312,26 @@ export function CenterWorkspace({
                 {submittedText}
               </div>
 
-              {resultMessage ? (
+              {overallScore !== null ? (
+                <div className="p-4 rounded-xl bg-amber-50/80 border border-amber-200/90 text-xs text-amber-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <div className="font-semibold text-amber-900 flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-amber-600" />
+                      <span>Historical Check (Score: {overallScore}/100)</span>
+                    </div>
+                    <p className="text-amber-700 text-[11px] mt-0.5">
+                      This check was processed before real-time claim sync was finalized. Click Re-Verify to re-populate claims and live Tavily proofs.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => onCheckFreshness()}
+                    className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-lg shadow-sm transition-all whitespace-nowrap self-start sm:self-auto cursor-pointer"
+                  >
+                    <RotateCw className="w-3.5 h-3.5" />
+                    Re-Verify Now
+                  </button>
+                </div>
+              ) : resultMessage ? (
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 flex items-start gap-2.5">
                   <ShieldCheck className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
                   <span>{resultMessage}</span>
