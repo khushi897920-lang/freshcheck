@@ -1,6 +1,8 @@
 <div align="center">
 
-# 🛡️ FreshCheck
+<img src="public/favicon.svg" alt="FreshCheck Logo" width="80" height="80" />
+
+# FreshCheck
 ### Autonomous Temporal Fact-Checking & Stale-Answer Detection Engine
 
 **Spell-check for facts that expire. Paste any AI-generated response or ask a question to detect outdated claims, inspect live web evidence, and auto-correct with verified ground truth.**
