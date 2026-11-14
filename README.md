@@ -88,23 +88,20 @@ Traditional RAG searches entire paragraphs blindly—wasting tokens and introduc
 
 ## 🧮 Calibrated Mathematical Freshness Scoring
 
-FreshCheck **never asks an LLM to guess a score**. Freshness is computed using a deterministic mathematical formula (`lib/score.ts`):
+FreshCheck **never asks an LLM to guess a score**. Freshness is computed deterministically in code (`lib/score.ts`):
 
-$$
-\text{Base Score} = 
-\begin{cases} 
-90 & \text{SUPPORTED (Fresh)} \\
-60 & \text{PARTIALLY\_SUPPORTED} \\
-40 & \text{UNVERIFIABLE (No proof)} \\
-10 & \text{OUTDATED (Stale)}
-\end{cases}
-$$
+| Claim Verdict | Base Score | Status | Criteria |
+| :--- | :---: | :---: | :--- |
+| **SUPPORTED** | **90** | 🟢 Fresh | Backed by current authoritative web sources |
+| **PARTIALLY_SUPPORTED** | **60** | 🟡 Uncertain | Partially matched with minor discrepancy |
+| **UNVERIFIABLE** | **40** | 🟡 Uncertain | Zero reliable web sources found (*Strict Honesty Rule*) |
+| **OUTDATED** | **10** | 🔴 Stale | Contradicted by newer 2026 ground truth |
 
-**Adjustments & Penalties:**
-- `+15` bonus if corroborated by an official primary domain (`.gov`, `.edu`, or official vendor documentation).
-- `+10` bonus for multi-domain consensus (3+ independent sources).
-- `-30` penalty for confirmed staleness or temporal contradiction.
-- Overall score is the weighted average across active time-sensitive claims.
+**Score Modifiers & Penalties:**
+- **`+15` Official Domain Bonus:** Corroborated by primary domains (`.gov`, `.edu`, or official vendor documentation).
+- **`+10` Consensus Bonus:** 3 or more independent domains corroborate the claim.
+- **`-30` Staleness Penalty:** Newer evidence contradicts the asserted value.
+- **Final Score:** Weighted mean across all active time-sensitive claims (scaled `0–100`).
 
 ---
 
