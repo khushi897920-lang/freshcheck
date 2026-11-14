@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" width="100%" height="100%" style="background:#0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <linearGradient id="gradCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="gradIndigo" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+    <linearGradient id="gradCyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+    <linearGradient id="gradEmerald" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="gradRose" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f43f5e" />
+      <stop offset="100%" stop-color="#e11d48" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- Title & Subtitle -->
+  <text x="600" y="55" text-anchor="middle" font-size="28" font-weight="800" fill="#f8fafc" letter-spacing="-0.5">FreshCheck: 4-Stage Autonomous Verification Pipeline</text>
+  <text x="600" y="85" text-anchor="middle" font-size="14" fill="#94a3b8">End-to-End Temporal Fact-Checking &amp; Stale-Answer Auto-Correction</text>
+
+  <!-- Input Pill -->
+  <g transform="translate(450, 115)">
+    <rect width="300" height="42" rx="21" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+    <circle cx="24" cy="21" r="8" fill="#6366f1" />
+    <text x="42" y="26" font-size="13" font-weight="600" fill="#e2e8f0">Input: AI-Generated Answer or Direct Query</text>
+  </g>
+
+  <!-- Flow Arrow down from Input -->
+  <path d="M 600 157 L 600 190" stroke="#6366f1" stroke-width="2.5" stroke-dasharray="4,4" />
+  <polygon points="595,188 600,196 605,188" fill="#6366f1" />
+
+  <!-- 4 Stage Pipeline Cards -->
+
+  <!-- STAGE 1 -->
+  <g transform="translate(50, 205)" filter="url(#shadow)">
+    <rect width="250" height="340" rx="16" fill="url(#gradCard)" stroke="#334155" stroke-width="1.5" />
+    <rect width="250" height="6" rx="3" fill="url(#gradIndigo)" />
+    <!-- Step Badge -->
+    <rect x="20" y="24" width="76" height="24" rx="12" fill="#312e81" />
+    <text x="58" y="40" text-anchor="middle" font-size="11" font-weight="700" fill="#a5b4fc">STAGE 01</text>
+    <rect x="150" y="24" width="80" height="24" rx="6" fill="#1e1b4b" stroke="#4338ca" stroke-width="1" />
+    <text x="190" y="40" text-anchor="middle" font-size="10" font-weight="700" fill="#c7d2fe">BIFROST</text>
+    
+    <text x="20" y="80" font-size="17" font-weight="700" fill="#f8fafc">Atomic Claim</text>
+    <text x="20" y="102" font-size="17" font-weight="700" fill="#f8fafc">Extraction</text>
+    <text x="20" y="130" font-size="12" fill="#94a3b8" line-height="18">Deconstructs paragraphs into</text>
+    <text x="20" y="148" font-size="12" fill="#94a3b8">granular factual propositions.</text>
+
+    <!-- Details Box -->
+    <rect x="18" y="170" width="214" height="150" rx="10" fill="#0f172a" stroke="#1e293b" />
+    <text x="30" y="196" font-size="11" font-weight="600" fill="#38bdf8">• Volatility Tagging:</text>
+    <text x="40" y="216" font-size="10.5" fill="#cbd5e1">High / Medium / Low</text>
+    <text x="30" y="242" font-size="11" font-weight="600" fill="#38bdf8">• Domain Categorization:</text>
+    <text x="40" y="262" font-size="10.5" fill="#cbd5e1">Pricing, API, Leadership, Law</text>
+    <text x="30" y="288" font-size="11" font-weight="600" fill="#38bdf8">• Offset Mapping:</text>
+    <text x="40" y="306" font-size="10.5" fill="#cbd5e1">Fuzzy Boundary Snapping</text>
+  </g>
+
+  <!-- Arrow 1 -> 2 -->
+  <g transform="translate(305, 360)">
+    <line x1="0" y1="0" x2="35" y2="0" stroke="#6366f1" stroke-width="3" />
+    <polygon points="33,-5 42,0 33,5" fill="#6366f1" />
+  </g>
+
+  <!-- STAGE 2 -->
+  <g transform="translate(350, 205)" filter="url(#shadow)">
+    <rect width="250" height="340" rx="16" fill="url(#gradCard)" stroke="#334155" stroke-width="1.5" />
+    <rect width="250" height="6" rx="3" fill="url(#gradCyan)" />
+    <!-- Step Badge -->
+    <rect x="20" y="24" width="76" height="24" rx="12" fill="#164e63" />
+    <text x="58" y="40" text-anchor="middle" font-size="11" font-weight="700" fill="#67e8f9">STAGE 02</text>
+    <rect x="155" y="24" width="75" height="24" rx="6" fill="#083344" stroke="#0e7490" stroke-width="1" />
+    <text x="192" y="40" text-anchor="middle" font-size="10" font-weight="700" fill="#a5f3fc">TAVILY API</text>
+    
+    <text x="20" y="80" font-size="17" font-weight="700" fill="#f8fafc">Live Ground-Truth</text>
+    <text x="20" y="102" font-size="17" font-weight="700" fill="#f8fafc">Web Retrieval</text>
+    <text x="20" y="130" font-size="12" fill="#94a3b8">Retrieves authoritative evidence</text>
+    <text x="20" y="148" font-size="12" fill="#94a3b8">from real-time web sources.</text>
+
+    <!-- Details Box -->
+    <rect x="18" y="170" width="214" height="150" rx="10" fill="#0f172a" stroke="#1e293b" />
+    <text x="30" y="196" font-size="11" font-weight="600" fill="#38bdf8">• 2026 Temporal Anchoring:</text>
+    <text x="40" y="216" font-size="10.5" fill="#cbd5e1">Appends "latest 2026"</text>
+    <text x="30" y="242" font-size="11" font-weight="600" fill="#38bdf8">• Clean Sanitization:</text>
+    <text x="40" y="262" font-size="10.5" fill="#cbd5e1">Strips markdown hashtags &amp; noise</text>
+    <text x="30" y="288" font-size="11" font-weight="600" fill="#38bdf8">• SHA-256 Cache:</text>
+    <text x="40" y="306" font-size="10.5" fill="#cbd5e1">Deduplicates repetitive queries</text>
+  </g>
+
+  <!-- Arrow 2 -> 3 -->
+  <g transform="translate(605, 360)">
+    <line x1="0" y1="0" x2="35" y2="0" stroke="#06b6d4" stroke-width="3" />
+    <polygon points="33,-5 42,0 33,5" fill="#06b6d4" />
+  </g>
+
+  <!-- STAGE 3 -->
+  <g transform="translate(650, 205)" filter="url(#shadow)">
+    <rect width="250" height="340" rx="16" fill="url(#gradCard)" stroke="#334155" stroke-width="1.5" />
+    <rect width="250" height="6" rx="3" fill="url(#gradEmerald)" />
+    <!-- Step Badge -->
+    <rect x="20" y="24" width="76" height="24" rx="12" fill="#064e3b" />
+    <text x="58" y="40" text-anchor="middle" font-size="11" font-weight="700" fill="#6ee7b7">STAGE 03</text>
+    <rect x="150" y="24" width="80" height="24" rx="6" fill="#022c22" stroke="#047857" stroke-width="1" />
+    <text x="190" y="40" text-anchor="middle" font-size="10" font-weight="700" fill="#a7f3d0">ALGORITHM</text>
+    
+    <text x="20" y="80" font-size="17" font-weight="700" fill="#f8fafc">Cross-Verification &amp;</text>
+    <text x="20" y="102" font-size="17" font-weight="700" fill="#f8fafc">Scoring Engine</text>
+    <text x="20" y="130" font-size="12" fill="#94a3b8">Deterministic 0–100 score</text>
+    <text x="20" y="148" font-size="12" fill="#94a3b8">backed by multi-domain proof.</text>
+
+    <!-- Details Box -->
+    <rect x="18" y="170" width="214" height="150" rx="10" fill="#0f172a" stroke="#1e293b" />
+    <text x="30" y="196" font-size="11" font-weight="600" fill="#34d399">• Two-Pass Judge:</text>
+    <text x="40" y="216" font-size="10.5" fill="#cbd5e1">Bifrost LLM + Heuristic Check</text>
+    <text x="30" y="242" font-size="11" font-weight="600" fill="#34d399">• Strict Honesty Rule:</text>
+    <text x="40" y="262" font-size="10.5" fill="#cbd5e1">No source = UNVERIFIABLE</text>
+    <text x="30" y="288" font-size="11" font-weight="600" fill="#34d399">• Calibrated Breakdown:</text>
+    <text x="40" y="306" font-size="10.5" fill="#cbd5e1">Bonus official, penalty staleness</text>
+  </g>
+
+  <!-- Arrow 3 -> 4 -->
+  <g transform="translate(905, 360)">
+    <line x1="0" y1="0" x2="35" y2="0" stroke="#10b981" stroke-width="3" />
+    <polygon points="33,-5 42,0 33,5" fill="#10b981" />
+  </g>
+
+  <!-- STAGE 4 -->
+  <g transform="translate(950, 205)" filter="url(#shadow)">
+    <rect width="200" height="340" rx="16" fill="url(#gradCard)" stroke="#334155" stroke-width="1.5" />
+    <rect width="200" height="6" rx="3" fill="url(#gradRose)" />
+    <!-- Step Badge -->
+    <rect x="16" y="24" width="76" height="24" rx="12" fill="#4c0519" />
+    <text x="54" y="40" text-anchor="middle" font-size="11" font-weight="700" fill="#fda4af">STAGE 04</text>
+    <rect x="108" y="24" width="76" height="24" rx="6" fill="#2a0814" stroke="#be123c" stroke-width="1" />
+    <text x="146" y="40" text-anchor="middle" font-size="10" font-weight="700" fill="#fecdd3">NEXT.JS</text>
+    
+    <text x="16" y="80" font-size="17" font-weight="700" fill="#f8fafc">Canvas &amp; Auto-</text>
+    <text x="16" y="102" font-size="17" font-weight="700" fill="#f8fafc">Correction</text>
+    <text x="16" y="130" font-size="12" fill="#94a3b8">Interactive visual report</text>
+    <text x="16" y="148" font-size="12" fill="#94a3b8">&amp; 1-click semantic fix.</text>
+
+    <!-- Details Box -->
+    <rect x="14" y="170" width="172" height="150" rx="10" fill="#0f172a" stroke="#1e293b" />
+    <text x="24" y="196" font-size="10.5" font-weight="600" fill="#fb7185">• Tri-Color Highlight:</text>
+    <text x="32" y="216" font-size="10" fill="#cbd5e1">Green / Amber / Red</text>
+    <text x="24" y="242" font-size="10.5" font-weight="600" fill="#fb7185">• Evidence Drawer:</text>
+    <text x="32" y="262" font-size="10" fill="#cbd5e1">Inspect citations &amp; URLs</text>
+    <text x="24" y="288" font-size="10.5" font-weight="600" fill="#fb7185">• 1-Click Patch:</text>
+    <text x="32" y="306" font-size="10" fill="#cbd5e1">Auto-correct to 2026 truth</text>
+  </g>
+
+  <!-- Bottom Badges / Metrics -->
+  <g transform="translate(200, 575)">
+    <rect width="800" height="42" rx="10" fill="#1e293b" stroke="#334155" />
+    <text x="130" y="26" text-anchor="middle" font-size="12" font-weight="600" fill="#a5b4fc">⚡ Sub-Second SSE Stream</text>
+    <text x="380" y="26" text-anchor="middle" font-size="12" font-weight="600" fill="#67e8f9">🛡️ 70% Quota Savings vs RAG</text>
+    <text x="640" y="26" text-anchor="middle" font-size="12" font-weight="600" fill="#34d399">🎯 Deterministic 0-100 Score</text>
+  </g>
+</svg>
+

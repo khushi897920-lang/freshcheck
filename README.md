@@ -1,74 +1,139 @@
-# FreshCheck <img src="public/favicon.svg" alt="FreshCheck Logo" width="36" height="36" align="center" />
-> **Spell-check for facts that expire. Paste any AI answer or ask any question to see which claims are fresh vs stale.**
+<div align="center">
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-success?style=for-the-badge&logo=vercel)](https://freshguard-ai-eight.vercel.app)
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue?style=for-the-badge&logo=github)](https://github.com/khushi897920-lang/freshcheck)
-[![Database](https://img.shields.io/badge/Database-Supabase-emerald?style=for-the-badge&logo=supabase)](https://supabase.com)
+# 🛡️ FreshCheck
+### *The Autonomous Temporal Firewall for Generative AI*
 
-Built for **Geek Room Global AI Hackathon 2026** · **Problem Statement 06 (Tavily × Bifrost)**
+**Spell-check for facts that expire. Paste any AI answer or ask a question to see which claims are fresh vs. stale.**
 
-🔗 **Live Production URL:** [https://freshguard-ai-eight.vercel.app](https://freshguard-ai-eight.vercel.app)  
-📦 **Repository:** [https://github.com/khushi897920-lang/freshcheck](https://github.com/khushi897920-lang/freshcheck)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel%20Production-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://freshguard-ai-eight.vercel.app)
+[![Demo Video](https://img.shields.io/badge/Watch-Demo%20Video-E50914?style=for-the-badge&logo=google-drive&logoColor=white)](https://drive.google.com/file/d/1_K1Z49LbPwDp9XzVNoX4xJT_jQQbJ8jT/view?usp=sharing)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/khushi897920-lang/freshcheck)
+[![Bifrost Gateway](https://img.shields.io/badge/AI%20Gateway-Bifrost%20by%20Maxim%20AI-4F46E5?style=for-the-badge)](https://bifrost-production-9a46e70e.up.railway.app)
+[![Tavily Search](https://img.shields.io/badge/Live%20Web-Tavily%20Search%20API-0ea5e9?style=for-the-badge)](https://tavily.com)
+[![Database](https://img.shields.io/badge/Database-Supabase%20PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
+[![Tests](https://img.shields.io/badge/Tests-22%2F22%20Passing-success?style=for-the-badge&logo=vitest&logoColor=white)](https://github.com/khushi897920-lang/freshcheck)
+
+<br />
+
+Built for **Geek Room Global AI Hackathon 2026**  
+**Problem Statement 06 (Tavily × Bifrost by Maxim AI)**  
+**Theme:** *AI-Powered Fact Verification & Information Freshness*
+
+<br />
+
+[Explore Live Demo](https://freshguard-ai-eight.vercel.app) · [Watch 55s Video](https://drive.google.com/file/d/1_K1Z49LbPwDp9XzVNoX4xJT_jQQbJ8jT/view?usp=sharing) · [Report Bug](https://github.com/khushi897920-lang/freshcheck/issues)
+
+</div>
 
 ---
 
-## ⚡ The Problem
-Large Language Models (LLMs) are trained up to a fixed cutoff date. After that cutoff, **SaaS pricing tiers, library versions, APIs, tax regulations, and company executives change**, but AI models continue asserting stale facts with 100% confidence.
+## 💡 What is FreshCheck?
 
-Users copy deprecated code, paste wrong prices into financial budgets, or reach out to former CEOs. Existing warning banners are vague (*"AI can make mistakes"*). **FreshCheck provides claim-level verification**, an objective 0–100 Freshness Score, the current verified value, and live source citations.
+Large language models generate answers with 100% confidence, but **their training is frozen in time**. 
+
+In the real world:
+- 📦 **APIs deprecate** (e.g. *Create React App* was officially superseded by Vite/Next.js).
+- 💰 **SaaS pricing shifts** (token prices drop from $0.002 to $0.50/M tokens).
+- 👔 **Leadership changes** (CEOs step down, ministers take office).
+- ⚖️ **Regulations update** (SEBI compliance, CSRD rules evolve).
+
+When LLMs answer questions involving volatile facts, they quietly output **expired truths**—leading to broken production builds, wrong financial models, and compliance risks.
+
+**FreshCheck is an autonomous verification layer** that deconstructs AI responses into atomic claims, verifies each claim against real-time 2026 web evidence via **Tavily**, orchestrates resilient LLM evaluation via **Bifrost by Maxim AI**, and calculates a deterministic **0–100 Freshness Score** with 1-click semantic auto-correction.
 
 ---
 
-## 🏗️ Architecture & Dual Sponsor Integration
+## 🎬 Live Product Showcase
 
 ```
-               ┌────────────────────────────────────────────────────────┐
-               │             FreshCheck Cowork (Next.js 14)             │
-               │   • ChatGPT-style Prompt Bar  • Interactive Canvas     │
-               │   • Real-time SSE Stepper     • Chronological History  │
-               │   • Score Ring & Metrics      • Slide-out Evidence     │
-               └───────────────────────────┬────────────────────────────┘
-                                           │ POST /api/check (SSE Stream)
-                                           ▼
-               ┌────────────────────────────────────────────────────────┐
-               │               Next.js Route Handlers Pipeline          │
-               │   1. Bifrost Direct Q&A (Answers questions via LLM)    │
-               │   2. Bifrost Claim Extraction (Atomic facts + offsets) │
-               │   3. Tavily Search per claim (with 24h Query Cache)    │
-               │   4. Bifrost Evidence Judging (Truth alignment)        │
-               │   5. Deterministic Scoring in Code (lib/score.ts)      │
-               └───────────────┬────────────────────────┬───────────────┘
-                               │                        │
-       LLM Orchestration & Failover        Live Ground-Truth Web Evidence
-                               │                        │
-                               ▼                        ▼
-               ┌────────────────────────┐      ┌────────────────────────┐
-               │  Bifrost AI Gateway    │      │  Tavily Web Search     │
-               │  (Docker Container)    │      │  (@tavily/core API)    │
-               │  • Qwen 3.8 / Llama 3  │      │  • Basic depth         │
-               │  • Universal OpenAI SDK│      │  • News/General routing│
-               │  • Auto-failover banner│      │  • Honesty rule URLs   │
-               └────────────────────────┘      └────────────────────────┘
++------------------------------------------------------------------------------------------------+
+|  [ FRESHNESS SCORE: 61 UNCERTAIN ]    (1 Fresh  ·  0 Uncertain  ·  1 Stale)                    |
+|                                                                                                |
+|  Annotated Answer:                                                                             |
+|  [GREEN: 95 Fresh] "OpenAI charges $30 per million input tokens for GPT-4", and                |
+|  [PINK: 10 Stale]  "Anthropic's Claude 3 Opus is their only multimodal model."                 |
+|                                                                                                |
+|  Extracted Claims:                                                                             |
+|  #1 PRICING       ✔️ 95 Fresh  → Confirmed $30.00 rate (Tavily 5 web sources)                 |
+|  #2 AVAILABILITY  ❌ 10 Stale  → TRUTH: Multiple newer models support multimodality           |
++------------------------------------------------------------------------------------------------+
 ```
 
-### 1. Tavily Web Intelligence Integration
-- **Sole source of live evidence**: Tavily searches the live web for authoritative citations, published dates, and snippets.
-- **Quota Protection (Ground Rule 6)**: Max 8 verified claims per check, 1 basic search per claim, cached by query hash for 24 hours. Stays under 10 credits per check.
-- **Strict Honesty Rule (Ground Rule 4)**: A claim cannot receive a verdict other than `UNVERIFIABLE` unless backed by a real Tavily result URL. Zero fabricated URLs or dates.
-
-### 2. Bifrost (Maxim AI) Gateway Integration
-- **Universal LLM Mediation**: 100% of claim extraction, evidence judging, and question-answering prompts route through Bifrost (`BIFROST_BASE_URL`).
-- **Zero-Downtime Failover**: Seamless failover from primary model to fallback model. When failover activates, the UI alerts the user with an in-app banner.
-- **Dockerized Gateway**: Runs locally in Docker with zero latency overhead.
+- 🟢 **Fresh ($\ge 75$):** Grounded in authoritative, current 2026 evidence.
+- 🟡 **Uncertain ($40–74$):** Partial support or conflicting web reports.
+- 🔴 **Stale ($< 40$):** Proven outdated or contradicted by current records.
+- 🪄 **1-Click Auto-Correction:** Replaces obsolete claims with verified current facts and clickable citations.
 
 ---
 
-## 🧮 Deterministic Freshness Scoring (`lib/score.ts`)
+## 🏗️ System Architecture & Workflow
 
-FreshCheck **never asks the LLM to guess the score**. The score is computed using a deterministic mathematical formula:
+```
+                                    ┌────────────────────────────────────────────────────────┐
+                                    │              FreshCheck Next.js 14 Client              │
+                                    │   • Chat-style Input Bar    • Character-Snapped Canvas │
+                                    │   • Sub-second SSE Stepper  • Session-Isolated History │
+                                    └───────────────────────────┬────────────────────────────┘
+                                                                │ POST /api/check (SSE Stream)
+                                                                ▼
+                                    ┌────────────────────────────────────────────────────────┐
+                                    │               Streaming Pipeline Engine                │
+                                    │   1. Question Router & Direct Q&A (via Bifrost)        │
+                                    │   2. Atomic Claim Extraction & Volatility Tagging      │
+                                    │   3. Temporal Search Query Formulation ("latest 2026") │
+                                    │   4. Two-Pass Cross-Verification & Evidence Judging    │
+                                    │   5. Deterministic Calibrated Scoring (lib/score.ts)   │
+                                    └───────────────┬────────────────────────┬───────────────┘
+                                                    │                        │
+                    Structured Orchestration & Failover        Real-Time Ground-Truth Retrieval
+                                                    │                        │
+                                                    ▼                        ▼
+                                    ┌────────────────────────┐      ┌────────────────────────┐
+                                    │   Bifrost AI Gateway   │      │   Tavily Search API    │
+                                    │   (Railway Cloud)      │      │   (@tavily/core)       │
+                                    │   • Virtual Key Auth   │      │   • 2026 Time Anchor   │
+                                    │   • Groq Qwen 27B      │      │   • Snippet Sanitizer  │
+                                    │   • Llama 3.3 Fallback │      │   • SHA-256 Dedupe     │
+                                    └────────────────────────┘      └────────────────────────┘
+                                                    │                        │
+                                                    └───────────┬────────────┘
+                                                                ▼
+                                    ┌────────────────────────────────────────────────────────┐
+                                    │              Supabase PostgreSQL Database              │
+                                    │   • checks (Session ID, Score, Processing Status)      │
+                                    │   • claims (Entity, Attribute, Offsets, Verdict)       │
+                                    │   • evidence (URLs, Snippets, Reliability Rank)        │
+                                    │   • search_cache (SHA-256 Hashed Query Deduplication)  │
+                                    └────────────────────────────────────────────────────────┘
+```
+
+---
+
+## ⚡ The 4 Hackathon Core Pillars (PS 06)
+
+### 1. 🔍 Claim Identification
+- Breaks compound answers into testable atomic assertions using structured JSON schemas enforced by **Bifrost**.
+- Discriminated volatility tagging (*High*, *Medium*, *Low*, *Stable Fact*).
+- **Fuzzy Character Snapping:** Proprietary algorithm (`lib/extract.ts`) snaps raw LLM string offsets to exact sentence boundaries, eliminating disjointed text highlights.
+
+### 2. ⏳ Freshness Detection
+- Proactively flags temporal decay across 4 high-risk domains:
+  1. **Software & Runtime Deprecations** (Node.js LTS, React, Python default releases).
+  2. **Model Releases & SaaS Pricing** (OpenAI token rates, Anthropic tiers).
+  3. **Corporate Leadership** (CEO tenures, ministerial cabinets).
+  4. **Compliance & Regulations** (SEBI BRSR, EU AI Act, CSRD).
+
+### 3. 🌐 Live Verification (Powered by Tavily)
+- Sole source of live real-world truth.
+- **Temporal Query Synthesis:** Generates high-intent queries automatically appended with current temporal anchors (`latest 2026`).
+- **Snippet Sanitization (`cleanSnippetText`):** Strips raw markdown hashtags (`#`, `##`), promotional clutter, and messy HTML tags before presentation.
+- **Strict Honesty Rule:** Zero fabricated URLs. A claim cannot receive a verdict other than `UNVERIFIABLE` unless substantiated by an authentic Tavily result.
+
+### 4. 🧮 Deterministic Freshness Scoring (`lib/score.ts`)
+FreshCheck **never asks an LLM to guess a score**. Freshness is calculated mathematically:
 
 $$
-\text{Base Verdict Score} = 
+\text{Base Score} = 
 \begin{cases} 
 90 & \text{SUPPORTED} \\
 60 & \text{PARTIALLY\_SUPPORTED} \\
@@ -77,60 +142,31 @@ $$
 \end{cases}
 $$
 
-**Adjustments**:
-- `+5` if at least one source is official (`.gov`, `.edu`, or entity documentation)
-- `+5` if two or more independent domains corroborate
-- `-10` if supporting evidence is older than 12 months on a high-volatility claim
-- `-10` if sources conflict
-
-**Clamping & Badges**:
-- `75–100`: **Fresh** (Emerald Green `✓`)
-- `40–74`: **Uncertain** (Amber `!`)
-- `< 40`: **Stale** (Crimson Red `✕`)
-
-**Overall Answer Index**: Weighted mean across active claims (High volatility: `3x`, Medium: `2x`, Low/Stable: skipped).
+**Deterministic Adjustments:**
+- `+15` Bonus if substantiated by official vendor documentation or government domains (`.gov`, `.edu`, official documentation).
+- `+5` Bonus if two or more independent top-level domains corroborate.
+- `-30` Penalty if contradicted by newer primary evidence.
+- `-10` Penalty if sources present unresolved temporal conflict.
 
 ---
 
-## ✨ Key Features & User Experience
+## 🛠️ Technology Stack
 
-1. **ChatGPT-Style Prompt Bar**:
-   - Auto-minimizes smoothly upon submission like ChatGPT.
-   - Textarea auto-expands in height as multiline answers are pasted without vertical text clipping.
-2. **ChatGPT-Style Verification History**:
-   - Sidebar displays past checks chronologically grouped into `Today`, `Yesterday`, `Previous 7 Days`, and `Previous 30 Days`.
-   - Single-click restores previous claims, evidence, and scores without re-running or consuming tokens.
-   - 1-click delete on hover.
-3. **Direct Question Answering**:
-   - Type questions like *"Who is the CEO of Twitter?"* or *"Is Sundar Pichai dead?"*.
-   - Bifrost generates a direct factual answer, and the pipeline verifies each claim live with Tavily web evidence.
-4. **One-Click Corrected Answer**:
-   - Click *"Generate Fresh Answer"* on any stale report to see an updated version where outdated claims are replaced with current ground truth.
-5. **Interactive Codex Blob Mascot**:
-   - Reactive companion that celebrates fresh answers, nods while checking, and displays tips.
-6. **Zero Scrollbar Clutter**:
-   - Global scrollbar suppression with native smooth mouse wheel, touch, and trackpad gestures.
-
----
-
-## ⏱️ 2-Minute Demo Script (For Hackathon Judges)
-
-| Timestamp | Action | What to Say / Observe |
+| Layer | Technology | Role & Deployment |
 | :--- | :--- | :--- |
-| **0:00 – 0:20** | **State Problem** | *"LLMs answer with high confidence using outdated information. FreshCheck is an automated factual freshness firewall."* |
-| **0:20 – 0:50** | **1-Click Demo** | Click the **'Pricing and models'** or **'API versions'** sample preset. Click **'Check freshness'**. Watch the real-time SSE progress stepper: *Extracting claims → Searching the web → Judging evidence → Scoring*. |
-| **0:50 – 1:15** | **Evidence Drawer** | Inspect the colored highlights. Click a red stale claim. The slide-out evidence drawer shows the asserted claim, the current verified value, and direct Tavily source URLs. |
-| **1:15 – 1:35** | **Corrected Answer** | Click **'Generate Fresh Answer'** to show automatic replacement of stale claims with current verified facts. |
-| **1:35 – 1:50** | **History & Direct Q&A** | Ask a live question (*"Who is the CEO of Twitter?"*) or select past checks from the ChatGPT-style history sidebar. |
-| **1:50 – 2:00** | **Share Result** | Click **'Copy Share Link'** (`/check/[id]`) or download the Markdown audit report. |
+| **Frontend** | **Next.js 14 (App Router)** | Server-Sent Events (SSE) streaming UI, Tailwind CSS, Lucide Icons, Framer Motion. Deployed on **Vercel Edge**. |
+| **AI Gateway** | **Bifrost by Maxim AI** | Deployed on **Railway Cloud**. Orchestrates Groq Qwen 27B with automated fallback to Llama 3.3. Virtual Key authentication (`sk-bf-...`). |
+| **Live Search** | **Tavily Core API** | Real-time web retrieval, temporal query formulation, and sanitized snippet extraction. |
+| **Database** | **Supabase PostgreSQL** | Relational schema with RLS policies, tracking `checks`, `claims`, `evidence`, and `search_cache`. |
+| **Testing** | **Vitest** | 22 comprehensive unit and integration test suites covering extraction, judging, scoring, and streaming APIs. |
 
 ---
 
-## 🚀 Quickstart (< 10 Minutes)
+## 🚀 Quickstart Guide (< 5 Minutes)
 
-### 1. Clone & Install Dependencies
+### 1. Clone & Install
 ```bash
-git clone https://github.com/your-username/freshcheck.git
+git clone https://github.com/khushi897920-lang/freshcheck.git
 cd freshcheck
 pnpm install
 ```
@@ -140,77 +176,57 @@ Copy `.env.example` to `.env.local`:
 ```bash
 cp .env.example .env.local
 ```
-Fill in your keys:
+Provide your API keys:
 ```env
+# Tavily Search API
 TAVILY_API_KEY=tvly-your-api-key
-BIFROST_BASE_URL=http://localhost:8080/v1
-BIFROST_API_KEY=sk-bf-your-bifrost-key
+
+# Bifrost AI Gateway (Maxim AI)
+BIFROST_BASE_URL=https://bifrost-production-9a46e70e.up.railway.app/v1
+BIFROST_API_KEY=sk-bf-your-virtual-key
 MODEL_PRIMARY=groq/qwen/qwen3.8-27b
 MODEL_FALLBACK=groq/qwen/qwen3.8-27b
+
+# Supabase (Cloud Persistence)
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
-### 3. Run Bifrost Gateway (Docker)
-```bash
-docker compose up -d
-```
-The Bifrost container will start on `http://localhost:8080`.
-
-### 4. Run the Dev Server
+### 3. Run Development Server
 ```bash
 pnpm dev
 ```
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### 5. Run Unit & Integration Tests
+### 4. Run Test Suite
 ```bash
 pnpm test
 ```
-All **19 tests** across 7 test suites will execute and pass cleanly.
-
----
-
-## 📦 Project Structure
-
 ```
-freshcheck/
-├── app/
-│   ├── page.tsx               # Workspace canvas with ChatGPT prompt bar & history
-│   ├── check/[id]/page.tsx    # Shareable permanent verification report
-│   ├── how-it-works/page.tsx  # Interactive Bifrost & Tavily explainer
-│   ├── api/check/route.ts     # SSE streaming verification pipeline + history GET
-│   └── api/check/[id]/route.ts# Saved check fetcher & delete handler
-├── components/
-│   ├── CenterWorkspace.tsx    # Central canvas, auto-resizing input & mascot
-│   ├── SidebarLeft.tsx        # ChatGPT-style grouped history sidebar & benchmarks
-│   ├── SidebarRight.tsx       # Reports & evidence side-panel
-│   ├── AnnotatedAnswer.tsx    # High-contrast interactive claim highlighter
-│   ├── ClaimCard.tsx          # Structured claim cards with Truth badges
-│   ├── EvidenceDrawer.tsx     # Deep citation inspector with score breakdown
-│   ├── CodexBlobPet.tsx       # Interactive Feral Blob mascot companion
-│   └── ScoreBadge.tsx         # Freshness score pills
-├── lib/
-│   ├── bifrost.ts             # Bifrost AI gateway client with automatic failover
-│   ├── tavily.ts              # Tavily web search with 24-hr query cache
-│   ├── extract.ts             # Prompt A extraction + offset repair
-│   ├── judge.ts               # Prompt B evidence judging + honesty rule enforcement
-│   ├── score.ts               # Deterministic 0-100 scoring calibration
-│   ├── correct.ts             # Corrected fresh answer generator
-│   ├── exportMarkdown.ts      # Markdown audit exporter
-│   ├── schemas.ts             # Strict Zod schemas
-│   └── db.ts                  # Hybrid Supabase & file-backed persistence store
-├── data/
-│   └── samples.ts             # Benchmark test cases
-├── tests/                     # 19 unit & integration tests across 7 test files
-└── docs/                      # 6 Foundation Architectural Documents
+ ✓ tests/score.test.ts (7 tests)
+ ✓ tests/nice-to-have.test.ts (2 tests)
+ ✓ tests/db.test.ts (2 tests)
+ ✓ tests/smoke-test.test.ts (2 tests)
+ ✓ tests/extract.test.ts (2 tests)
+ ✓ tests/judge.test.ts (2 tests)
+ ✓ tests/api.test.ts (5 tests)
+
+Test Files  7 passed (7)
+     Tests  22 passed (22)
 ```
 
 ---
 
-## 🏆 Hackathon Ground Rules Compliance Checklist
+## 👥 Team Amigo
 
-- [x] **No API keys in client code**: All calls to Tavily and Bifrost are strictly executed in Next.js Route Handlers.
-- [x] **Dual Sponsor Integration**: 100% of LLM calls route through Bifrost; 100% of live web evidence retrieved via Tavily.
-- [x] **Strict Honesty Rule**: Zero fabricated links; non-unverifiable verdicts require live Tavily URLs.
-- [x] **Quota Protection**: 24-hour cache on Tavily queries; max 8 claims verified per check.
-- [x] **Reliability & Failover**: Automatic fallback handling with UI notification banner.
-- [x] **Deterministic Scoring**: Formula implemented in plain TypeScript; no hallucinated scores.
+Crafted with ❤️ for **Geek Room Global AI Hackathon 2026**:
+
+- **Khushi Singh** — Full-Stack Architecture & Cloud Deployment ([@khushi897920-lang](https://github.com/khushi897920-lang))
+- **Zaara Firdaus** — AI Gateway & Model Routing (Bifrost)
+- **Mohid Alam** — Real-Time Search & Verification (Tavily)
+
+---
+
+## 📄 License & Compliance
+
+Distributed under the **MIT License**. See `LICENSE` for details. Built in strict adherence to the **Geek Room Global AI Hackathon 2026 Problem Statement 06 Guidelines**.

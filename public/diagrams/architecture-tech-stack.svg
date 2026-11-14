@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" width="100%" height="100%" style="background:#0b1120; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <linearGradient id="gradDarkCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="glowIndigo" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#a855f7" />
+    </linearGradient>
+    <linearGradient id="glowCyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+    <linearGradient id="glowEmerald" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#14b8a6" />
+    </linearGradient>
+    <linearGradient id="glowAmber" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#ea580c" />
+    </linearGradient>
+    <filter id="boxShadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- Title -->
+  <text x="600" y="55" text-anchor="middle" font-size="28" font-weight="800" fill="#f8fafc" letter-spacing="-0.5">FreshCheck: System Architecture &amp; Technology Stack</text>
+  <text x="600" y="82" text-anchor="middle" font-size="14" fill="#94a3b8">End-to-End Cloud Deployment with High-Availability Gateway &amp; Real-Time Search</text>
+
+  <!-- TOP LAYER: FRONTEND CLIENT (Next.js 14 on Vercel) -->
+  <g transform="translate(100, 115)" filter="url(#boxShadow)">
+    <rect width="1000" height="135" rx="16" fill="url(#gradDarkCard)" stroke="#334155" stroke-width="1.5" />
+    <rect width="1000" height="5" rx="2.5" fill="url(#glowIndigo)" />
+    
+    <rect x="25" y="20" width="130" height="26" rx="6" fill="#312e81" stroke="#4f46e5" stroke-width="1" />
+    <text x="90" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="#c7d2fe">FRONTEND LAYER</text>
+
+    <text x="175" y="38" font-size="18" font-weight="700" fill="#f8fafc">Next.js 14 App Router (Deployed on Vercel Edge)</text>
+    <text x="25" y="70" font-size="12" fill="#94a3b8">Interactive Fact-Checking Workspace with Server-Sent Events (SSE) Streaming</text>
+
+    <!-- 3 feature pills inside frontend -->
+    <rect x="25" y="85" width="295" height="34" rx="8" fill="#0f172a" stroke="#1e293b" />
+    <text x="38" y="106" font-size="11" fill="#e2e8f0"><tspan font-weight="700" fill="#818cf8">⚡ SSE Stepper:</tspan> Sub-second progress</text>
+
+    <rect x="340" y="85" width="315" height="34" rx="8" fill="#0f172a" stroke="#1e293b" />
+    <text x="353" y="106" font-size="11" fill="#e2e8f0"><tspan font-weight="700" fill="#818cf8">🎨 Tri-Color Highlighting:</tspan> Offset-aligned</text>
+
+    <rect x="675" y="85" width="300" height="34" rx="8" fill="#0f172a" stroke="#1e293b" />
+    <text x="688" y="106" font-size="11" fill="#e2e8f0"><tspan font-weight="700" fill="#818cf8">🛡️ Evidence Drawer:</tspan> Side-by-side audit</text>
+  </g>
+
+  <!-- Connectors from Frontend to Gateway & Search -->
+  <path d="M 350 250 L 350 305" stroke="#6366f1" stroke-width="2.5" stroke-dasharray="4,4" />
+  <polygon points="345,302 350,312 355,302" fill="#6366f1" />
+
+  <path d="M 850 250 L 850 305" stroke="#06b6d4" stroke-width="2.5" stroke-dasharray="4,4" />
+  <polygon points="845,302 850,312 855,302" fill="#06b6d4" />
+
+  <!-- MIDDLE ROW: TWO CORES (BIFROST vs TAVILY) -->
+
+  <!-- BIFROST GATEWAY (LEFT) -->
+  <g transform="translate(100, 320)" filter="url(#boxShadow)">
+    <rect width="470" height="190" rx="16" fill="url(#gradDarkCard)" stroke="#334155" stroke-width="1.5" />
+    <rect width="470" height="5" rx="2.5" fill="url(#glowIndigo)" />
+
+    <rect x="22" y="20" width="165" height="26" rx="6" fill="#1e1b4b" stroke="#4338ca" stroke-width="1" />
+    <text x="105" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="#a5b4fc">AI GATEWAY (MAXIM AI)</text>
+
+    <text x="22" y="70" font-size="17" font-weight="700" fill="#f8fafc">Bifrost Gateway on Railway Cloud</text>
+    <text x="22" y="90" font-size="12" fill="#94a3b8">Multi-Provider Virtual Key Orchestration &amp; Failover</text>
+
+    <rect x="20" y="108" width="430" height="66" rx="10" fill="#0f172a" stroke="#1e293b" />
+    <text x="32" y="130" font-size="11" fill="#cbd5e1"><tspan font-weight="700" fill="#a5b4fc">• Primary:</tspan> Groq Qwen 27B / Llama 3.3 (Sub-500ms JSON extraction)</text>
+    <text x="32" y="150" font-size="11" fill="#cbd5e1"><tspan font-weight="700" fill="#a5b4fc">• Resilience:</tspan> Automated fallback if rate limits or 401/429 hit</text>
+    <text x="32" y="167" font-size="11" fill="#cbd5e1"><tspan font-weight="700" fill="#a5b4fc">• Virtual Key:</tspan> Header x-bf-vk authentication on Railway</text>
+  </g>
+
+  <!-- TAVILY SEARCH (RIGHT) -->
+  <g transform="translate(630, 320)" filter="url(#boxShadow)">
+    <rect width="470" height="190" rx="16" fill="url(#gradDarkCard)" stroke="#334155" stroke-width="1.5" />
+    <rect width="470" height="5" rx="2.5" fill="url(#glowCyan)" />
+
+    <rect x="22" y="20" width="165" height="26" rx="6" fill="#083344" stroke="#0891b2" stroke-width="1" />
+    <text x="105" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="#67e8f9">LIVE WEB SEARCH</text>
+
+    <text x="22" y="70" font-size="17" font-weight="700" fill="#f8fafc">Tavily Real-Time Search API</text>
+    <text x="22" y="90" font-size="12" fill="#94a3b8">2026 Ground Truth &amp; Evidence Sanitization</text>
+
+    <rect x="20" y="108" width="430" height="66" rx="10" fill="#0f172a" stroke="#1e293b" />
+    <text x="32" y="130" font-size="11" fill="#cbd5e1"><tspan font-weight="700" fill="#67e8f9">• Temporal Anchor:</tspan> Queries appended with "latest 2026"</text>
+    <text x="32" y="150" font-size="11" fill="#cbd5e1"><tspan font-weight="700" fill="#67e8f9">• Sanitizer:</tspan> Strips markdown # hashtags &amp; promotional noise</text>
+    <text x="32" y="167" font-size="11" fill="#cbd5e1"><tspan font-weight="700" fill="#67e8f9">• Deduplication:</tspan> SHA-256 local query cache saves search credits</text>
+  </g>
+
+  <!-- Connectors to Database -->
+  <path d="M 335 510 L 335 540 L 500 540 L 500 550" stroke="#6366f1" stroke-width="2" stroke-dasharray="3,3" />
+  <path d="M 865 510 L 865 540 L 700 540 L 700 550" stroke="#06b6d4" stroke-width="2" stroke-dasharray="3,3" />
+  <polygon points="495,548 500,555 505,548" fill="#6366f1" />
+  <polygon points="695,548 700,555 705,548" fill="#06b6d4" />
+
+  <!-- BOTTOM LAYER: DATABASE (Supabase PostgreSQL) -->
+  <g transform="translate(100, 560)" filter="url(#boxShadow)">
+    <rect width="1000" height="100" rx="14" fill="url(#gradDarkCard)" stroke="#334155" stroke-width="1.5" />
+    <rect width="1000" height="4" rx="2" fill="url(#glowEmerald)" />
+
+    <rect x="22" y="15" width="140" height="24" rx="6" fill="#064e3b" stroke="#059669" stroke-width="1" />
+    <text x="92" y="31" text-anchor="middle" font-size="10.5" font-weight="700" fill="#6ee7b7">PERSISTENCE LAYER</text>
+
+    <text x="180" y="32" font-size="16" font-weight="700" fill="#f8fafc">Supabase PostgreSQL Database</text>
+    <text x="440" y="32" font-size="12" fill="#94a3b8">(Connected via Service-Role Key with Session Isolation)</text>
+
+    <!-- 4 table badges -->
+    <rect x="22" y="52" width="220" height="34" rx="8" fill="#0f172a" stroke="#1e293b" />
+    <text x="32" y="73" font-size="11" fill="#e2e8f0"><tspan font-weight="700" fill="#34d399">Table 1:</tspan> checks (Session, Score)</text>
+
+    <rect x="260" y="52" width="220" height="34" rx="8" fill="#0f172a" stroke="#1e293b" />
+    <text x="270" y="73" font-size="11" fill="#e2e8f0"><tspan font-weight="700" fill="#34d399">Table 2:</tspan> claims (Offsets, Verdict)</text>
+
+    <rect x="500" y="52" width="230" height="34" rx="8" fill="#0f172a" stroke="#1e293b" />
+    <text x="510" y="73" font-size="11" fill="#e2e8f0"><tspan font-weight="700" fill="#34d399">Table 3:</tspan> evidence (URL, Snippet)</text>
+
+    <rect x="750" y="52" width="225" height="34" rx="8" fill="#0f172a" stroke="#1e293b" />
+    <text x="760" y="73" font-size="11" fill="#e2e8f0"><tspan font-weight="700" fill="#34d399">Table 4:</tspan> search_cache (Hashed)</text>
+  </g>
+</svg>
+
